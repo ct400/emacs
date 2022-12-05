@@ -1,11 +1,11 @@
 * Personal Emacs config.
 
 Nothing much to say about it, really. Moving from a much more complex
-org-setup to something much simpler. But thn here I am explaininng
+org-setup to something much simpler. But then here I am explaininng
 parts of the damned thing, so why not just tangle like in the old
 days?
 
-* TODO:
+** TODO:
 - gruber-shrews colour of org src blocks
 - C-x r t -- rectangular editing seems wonky
 - find nice light theme
@@ -19,10 +19,8 @@ days?
 - Generate keys
   #+begin_src sh
     $ cd ~/.ssh
-    ssh-keygen -t rsa -C "centzon@protonmail.com" -f "ct400"
-    ssh-add  ~/.ssh/github-rahul-office
-    git remote add origin https://github.com/ct400/emacs.git
-    git branch -M main
+    ssh-keygen -t rsa -C "ct400@protonmail.com" -f "ct400"
+    ssh-add  ~/.ssh/ct400
   #+end_src
 
 - Go to github and add the content of the pub key created above.
@@ -30,9 +28,10 @@ days?
 
 #+begin_example
 # 2022-12-05
-Host github.com-ct400
+#" Host" can be anything memorable
+Host github-ct400
     HostName github.com
-    # User git
+    User git
     IdentityFile ~/.ssh/ct400-github
     IdentitiesOnly yes
 #+end_example
@@ -40,7 +39,7 @@ Host github.com-ct400
 Test with:
 
 #+begin_src sh
-ssh -T git@github.com-ct400
+ssh -T git@github-ct400
 #==> Hi ct400! You've successfully authenticated...
 #+end_src
 
@@ -56,11 +55,21 @@ Add the following to .git/config:
     #IdentityFile    = ~/.ssh/ct400-github
 #+end_example
 
-🎲🎲 Dice!
+Connect local repo with the remote. Github will offer a default url to
+add. In this case it was =git remote add origin git@github-ct400:ct-400/emacs.git= BUT we should use the host specified in our ~/.ssh/config, so:
+
+Check for existing remotes with =git remote -v=, delete any bad ones w/ =git remote rm origin=
+#+begin_src sh
+  git branch -M main  # rename from "master" for sensitivy seasons.
+  git remote add origin git@github-ct400:ct400/emacs.git
+  git push -u origin main
+#+end_src
+
+** 🎲🎲 Dice!
 
 
 * Some Keybinds
-I'm a dummy and keep forgetting, so…
+Je suis un Dummkopf agus siempre me olvido, so…
 
 ** Remaps/non-standard
 - C-w              -- backwards-kill-word
@@ -86,7 +95,6 @@ I'm a dummy and keep forgetting, so…
 - C-]               -- abort-recursive-edit
 - M-d               -- forward kill-word
 
-  
 ** Much used extended commands
 - M-x whitespace-mode
 - M-x untabify
