@@ -1,0 +1,101 @@
+* Personal Emacs config.
+
+Nothing much to say about it, really. Moving from a much more complex
+org-setup to something much simpler. But thn here I am explaininng
+parts of the damned thing, so why not just tangle like in the old
+days?
+
+* TODO:
+- gruber-shrews colour of org src blocks
+- C-x r t -- rectangular editing seems wonky
+- find nice light theme
+
+* Since this is a new repo— how did I set it up?
+- New account at github.com
+- Create repo called /emacs/
+- git init from magit =M-x magit=
+- Create standard /.gitignore/ to exlude cruft left by emacs and some general personal stuff
+- Create this README.org
+- Generate keys
+  #+begin_src sh
+    $ cd ~/.ssh
+    ssh-keygen -t rsa -C "centzon@protonmail.com" -f "ct400"
+    ssh-add  ~/.ssh/github-rahul-office
+    git remote add origin https://github.com/ct400/emacs.git
+    git branch -M main
+  #+end_src
+
+- Go to github and add the content of the pub key created above.
+- Create ~/.ssh/config file and add details for nth github a/c:
+
+#+begin_example
+# 2022-12-05
+Host github.com-ct400
+    HostName github.com
+    # User git
+    IdentityFile ~/.ssh/ct400-github
+    IdentitiesOnly yes
+#+end_example
+
+Test with:
+
+#+begin_src sh
+ssh -T git@github.com-ct400
+#==> Hi ct400! You've successfully authenticated...
+#+end_src
+
+Add the following to .git/config:
+
+#+begin_example
+[user]
+## this is local and has nothing to do with online gits...
+## could be "Mickey Mouse" for all github cares
+    name = ct400
+    email = centzon@protonmail.com
+    username = ct400
+    #IdentityFile    = ~/.ssh/ct400-github
+#+end_example
+
+🎲🎲 Dice!
+
+
+* Some Keybinds
+I'm a dummy and keep forgetting, so…
+
+** Remaps/non-standard
+- C-w              -- backwards-kill-word
+- C-z              -- undo
+- C-x m            -- alias for M-x
+- C-x C-m          -- same
+- M-<up|down>      -- move line (code from emacs wiki)
+- M-s<up|down>     -- multiple cursors
+- C-M  ,|.         -- multiple cursors
+- C-M =|-          -- increase/decrease font (from default-text-scale package)
+- C-x o x <win-ID> --  deletes window
+- M-o x <win-ID>   --  same  (courtesy of ace-window)
+
+** Standard
+- C-x <TAB> <arrow> -- indent/deindent
+- M-y               -- access to kill ring
+- C-x \             -- align-regexp (what formetted this)
+- M-x               -- describe-variable <custom-enabled-themes>
+- M-x               -- describe-personal-keybindings
+- M-a               -- start of sentence
+- M-e               -- end of sentence
+- C-x 8 e           -- emoji
+- C-]               -- abort-recursive-edit
+- M-d               -- forward kill-word
+
+  
+** Much used extended commands
+- M-x whitespace-mode
+- M-x untabify
+- M-x qrr regexp-replace
+- M-x fill-column -- Haha!  This is M-q
+
+** Orgmode
+TODO: *multiple cursors seems not to align correctly in org buffers?*
+- M-s <arrow> -- org-shiftmetaup drags line up in =org-mode-map=
+- M-<RET> -- org insert heading
+- C-<RET> -- new heading @ end of subtree
+
