@@ -1,7 +1,7 @@
 * Personal Emacs config.
 
 Nothing much to say about it, really. Moving from a much more complex
-org-setup to something much simpler. But then here I am explaininng
+org-setup to something much simpler. But then here I am explaining
 parts of the damned thing, so why not just tangle like in the old
 days?
 
@@ -17,6 +17,7 @@ days?
 - Create standard /.gitignore/ to exlude cruft left by emacs and some general personal stuff
 - Create this README.org
 - Generate keys
+  
   #+begin_src sh
     $ cd ~/.ssh
     ssh-keygen -t rsa -C "ct400@protonmail.com" -f "ct400"
@@ -24,7 +25,7 @@ days?
   #+end_src
 
 - Go to github and add the content of the pub key created above.
-- Create ~/.ssh/config file and add details for nth github a/c:
+- Create ~/.ssh/config file and adding details for nth github a/c:
 
 #+begin_example
 # 2022-12-05
@@ -67,6 +68,26 @@ Check for existing remotes with =git remote -v=, delete any bad ones w/ =git rem
 
 ** 🎲🎲 Dice!
 
+* play around with overriding gruber-shrews
+#+begin_src emacs-lisp
+(custom-set-faces 
+ '(Info-quoted       ((t (:foreground "#F15952" :family "Hack-13"))))
+ '(minibuffer-prompt ((t (:foreground "#4B919E" :family "Menlo-14"))))
+
+ `(org-block ((t (:background "#002244" :foreground "#96A6C8"))))
+ `(org-block-begin-line ((t (:foreground "#cc8c3c"))))
+ `(org-block-end-line  ((t (:foreground "#569034"))))
+
+ ;; `(org-level-1  ((t (:foreground "#F7BA00" :family "Menlo-18")))) 
+ ;; `(org-level-2  ((t (:foreground "#4B919E"))))
+ ;; `(org-level-3  ((t (:foreground "#9e95c7"))))
+ ;; `(org-level-4  ((t (:foreground "#CC8C3C"))))
+ ;; `(org-level-5  ((t (:foreground "#96A6C8"))))
+ ;; `(org-level-6  ((t (:foreground "#569034"))))
+
+;; `(org-special-keyword  ((t (:foreground "red"))))
+ )
+#+end_src
 
 * Some Keybinds
 Je suis un Dummkopf agus siempre me olvido, so…
@@ -80,9 +101,14 @@ Je suis un Dummkopf agus siempre me olvido, so…
 - M-s<up|down>     -- multiple cursors
 - C-M  ,|.         -- multiple cursors
 - C-M =|-          -- increase/decrease font (from default-text-scale package)
-- C-x o x <win-ID> --  deletes window
-- M-o x <win-ID>   --  same  (courtesy of ace-window)
+- C-x o x <win-ID> -- deletes window
+- M-o x <win-ID>   -- same  (courtesy of ace-window)
+- C-x u            -- undo-tree-visualize
+- C-p|n            -- up/down tree; d - diff; t - timestamps; q - quit
+- C-/              -- (un)comment region; defaullt M-;
+- C-q              -- emacs-surround region w/ chars
 
+  
 ** Standard
 - C-x <TAB> <arrow> -- indent/deindent
 - M-y               -- access to kill ring
@@ -94,13 +120,14 @@ Je suis un Dummkopf agus siempre me olvido, so…
 - C-x 8 e           -- emoji
 - C-]               -- abort-recursive-edit
 - M-d               -- forward kill-word
-
+- C-/               -- undo
+  
 ** Much used extended commands
 - M-x whitespace-mode
 - M-x untabify
 - M-x qrr regexp-replace
 - M-x fill-column -- Haha!  This is M-q
-
+y
 ** Orgmode
 TODO: *multiple cursors seems not to align correctly in org buffers?*
 - M-s <arrow> -- org-shiftmetaup drags line up in =org-mode-map=
