@@ -29,15 +29,12 @@
 (add-to-list 'load-path (expand-file-name "sjy2-lisp" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "git-cloned-lisp" user-emacs-directory))
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-;;;; after `cp  /usr/share/emacs/site-lisp/mu4e/* ~/.config/emacs/mu4e/`
+;; after `cp  /usr/share/emacs/site-lisp/mu4e/* ~/.config/emacs/mu4e/`
 (add-to-list 'load-path (expand-file-name "mu4e" user-emacs-directory))
-;; (add-to-list 'load-path "~/.config/emacs/sjy2-lisp")
-;; (add-to-list 'load-path "~/.config/emacs/git-cloned-lisp")
-;; (add-to-list 'load-path "~/.config/emacs/mu4e")
+;; local themes
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/gruvbox")
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/spaceway")
-
 
 ;; No custom-set-variables in init.el
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -54,7 +51,6 @@
 ;;;;;;;;;;;;;;;;; PACKAGE MANAGEMENT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-
 ;;; straight is in early-init.el
 
 ;;; use-package
@@ -147,8 +143,8 @@
 
 ;; Remeber Shit
 (use-package command-log-mode
-  :straight t
-  (:type built-in)
+  ;; :straight t
+  ;; (:type built-in)
   :diminish
   (command-log-mode)
   :config
@@ -228,23 +224,21 @@
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump))
-  ;; l list; a hidden; G no group; h for humans
   :custom ((dired-listing-switches "-laGh --group-directories-first")))
-;;(setq dired-listing-switches "-alh --group-directories-first --time-style \"+%m-%d-%Y %H:%M:%S\"")
 (use-package dired-single)
 
 (use-package all-the-icons-dired
   :defer
   :hook (dired-mode . all-the-icons-dired-mode))
 
-(use-package dired-hide-dotfiles
-  :defer
-  :hook (dired-mode . dired-hide-dotfiles-mode)
-  :config)
+;; (use-package dired-hide-dotfiles
+;;   :defer
+;;   :hook (dired-mode . dired-hide-dotfiles-mode)
+;;   :config)
 
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)))
+;; (use-package magit
+;;   :ensure t
+;;   :bind (("C-x g" . magit-status)))
 
 ;; (use-package git-timemachine
 ;;   :ensure t
@@ -444,7 +438,6 @@
 ;;   (global-hl-todo-mode))
 
 
-
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
@@ -582,7 +575,10 @@
   (global-undo-tree-mode)
   :config
   (setq undo-tree-auto-save-history t)
-  (global-undo-tree-mode +1))
+  :custom
+  (undo-tree-visualizer-diff t)
+  (undo-tree-history-directory-alist '(("." . "~/.config/emacs/undo-tree")))
+  (undo-tree-visualizer-timestamps t))
 
 (use-package default-text-scale
   ;; C+M+- and C+M+=
@@ -804,19 +800,24 @@ point reaches the beginning or end of the buffer, stop there."
 (setq org-log-done t)              ;; 
 
 ;;; pretty bullets
-(use-package org-modern
-  :commands (org-modern-mode org-modern-agenda)
-  :init
-  (setq org-modern-todo t
-        org-modern-table nil ; Currently breaks some things
-        org-modern-variable-pitch nil)
-  (add-hook 'org-mode-hook #'org-modern-mode)
-  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
-  (global-org-modern-mode))
+(use-package org-bullets 
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-;; (use-package org-bullets 
-;;     :config
-;;     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+;; (defcustom org-bullets-bullet-list
+;;   '(;;; Large
+;;     "◉"
+;;     "○"
+;;     "✸"
+;;     "✿"
+;;     ;; ♥ ● ◇ ✚ ✜ ☯ ◆ ♠ ♣ ♦ ☢ ❀ ◆ ◖ ▶
+;;     ;;; Small
+;;     ;; ► • ★ ▸
+;;     )
+;;   "This variable contains the list of bullets.
+;; It can contain any number of symbols, which will be repeated."
+;;   :group 'org-bullets
+;;   :type '(repeat (string :tag "Bullet character")))
 
 ;;; org block templates
 (use-package org-tempo
@@ -829,7 +830,7 @@ point reaches the beginning or end of the buffer, stop there."
                      ("py"  . "src python")
                      ("q"   . "quote")
                      ("v"   . "verse")
-                     ("v"   . "results")
+                     ("r"   . "results")
                      ("rb"  . "src ruby")
                      ("sh"  . "src sh"))))
        (dolist (template templates)
