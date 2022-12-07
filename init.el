@@ -463,7 +463,11 @@
 
 (custom-set-faces 
  '(Info-quoted       ((t (:foreground "#F15952" :family "Hack-13"))))
- '(minibuffer-prompt ((t (:foreground "#4B919E" :family "Menlo-14")))))
+ '(minibuffer-prompt ((t (:foreground "#4B919E" :family "Menlo-14"))))
+
+ `(markdown-header-face      ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo"))))
+ `(markdown-italic-face      ((t (:slant oblique :underline t :height 1.1 :family "Iosevka"))))
+ )
 
 ;;; PRETIFFY
 
