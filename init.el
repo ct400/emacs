@@ -21,6 +21,8 @@
 
 (set-frame-parameter (selected-frame) 'alpha-background 0.92)  ;; new in Emacs 29
 
+(setq split-window-horizontally -1)
+
 ;;;;;;;;;;;;;;;;; PATHS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
@@ -34,11 +36,10 @@
 ;; local themes
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/gruvbox")
-(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/spaceway")
 
 ;; No custom-set-variables in init.el
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(setq undo-undtree-history-directory-alist '("~/.config/emacs/tmp/undotree"))
+(setq undo-undtree-history-directory-alist '("~/.config/emacs/tmp/undo-tree"))
 (setq desktop-save-path '("~/.config/emacs/tmp"))    ;; path to desktop saves
 (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
   auto-save-file-name-transforms 
@@ -79,6 +80,15 @@
 ;;
 ;;
 (load-file "~/.config/emacs/sjy2-lisp/sjy2-keybinds.el")
+
+;; replace buffer-menu with ibuffer
+ (global-set-key (kbd "C-x C-b") #'ibuffer)
+
+;; Start proced in a similar manner to dired
+(global-set-key (kbd "C-x p") #'proced)
+
+;; align code in a pretty way
+(global-set-key (kbd "C-x \\") #'align-regexp)
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END KEYBINDS ;;;;;;;;;;;;;;;;;
@@ -88,39 +98,35 @@
 ;;
 
 ;;(toggle-frame-maximized)            ;; ENHANCE!!
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
-;; (setq split-height-threshold nil)   ;; new frames split horizontally
-;; (setq split-width-threshold 0)  
 (pixel-scroll-precision-mode)       ;; new in 29.x smooth scrolling
 (setq load-prefer-newer t)          ;; load newest byte code
 (setq enable-local-variables :safe) ;; YOLO
-
 
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 ;; Keep scrollbar...
 ;; Why does the U.S. Navy use analog gauges in their reactor plants?
 ;; It's too easy to glance at a digital gauge and misread it.
-(scroll-bar-mode             1)    ;; keep the scroll bar
-(tooltip-mode               -1)    ;; disable tips on menu items
-(save-place-mode             1)    ;; remember where point last was
-(global-auto-revert-mode     1)    ;; auto-update when on-disk-change
-(global-hl-line-mode         1)    ;; Highlight line at point.
-(visual-line-mode            t)    ;; Treat each display line as if
-(column-number-mode          1)    ;; columns and rows in mode line
-(line-number-mode            1)
-(delete-selection-mode       1)    ;; typing replaces active selection
-(savehist-mode               1)    ;; remember last minibuffer commands
-(fido-vertical-mode         -1)    ;; TODO: vertico?
-(winner-mode                 1)    ;; undo/redo windows config
-(desktop-save-mode           1)    ;; remember last opened files
-(desktop-read)
-(setq use-short-answers      1)    ;; as of Emacs 28.1
-(setq visible-bell           1)    ;; DANGER WILL ROBINSON! (Audible if nil)
-(setq calendar-style      'iso)    ;; 8601 Gang!
-(setq calendar-week-start-day        1)    ;; Week starts monday (default=0, Sunday)
-(setq warning-minimum-level :emergency)    ;; ignore warns like docstring length
-(setq ad-redefinition-action 'accept)      ;; ignore def advice warns
+(scroll-bar-mode               1)    ;; keep the scroll bar
+(tooltip-mode                 -1)    ;; disable tips on menu items
+(save-place-mode               1)    ;; remember where point last was
+(global-auto-revert-mode       1)    ;; auto-update when on-disk-change
+(global-hl-line-mode           1)    ;; Highlight line at point.
+(visual-line-mode              t)    ;; Treat each display line as if
+(column-number-mode            1)    ;; columns and rows in mode line
+(line-number-mode              1)
+(delete-selection-mode         1)    ;; typing replaces active selection
+(savehist-mode                 1)    ;; remember last minibuffer commands
+(fido-vertical-mode           -1)    ;; TODO: vertico?
+(winner-mode                   1)    ;; undo/redo windows config
+(desktop-save-mode             1)    ;; remember last opened files
+(desktop-read)  
+(setq use-short-answers        1)    ;; as of Emacs 28.1
+(setq visible-bell             1)    ;; DANGER WILL ROBINSON! (Audible if nil)
+(setq calendar-style        'iso)    ;; 8601 Gang!
+(setq calendar-week-start-day  1)        ;; Week starts Mon (default=0, Sun)
+(setq warning-minimum-level :emergency)  ;; ignore warns like docstring length
+(setq ad-redefinition-action 'accept  )  ;; ignore def advice warns
 
 ;; replace bell with mode-line "nudge"
 (setq ring-bell-function
@@ -131,8 +137,8 @@
         (lambda (fg) (set-face-foreground 'mode-line fg))
         orig-fg))))
 
-(setq-default display-line-numbers-type  'relative)
-(global-display-line-numbers-mode                 )    ;; Show line numbers
+(setq-default display-line-numbers-type  'absolute)  ;; relative nonsense without evil    
+(global-display-line-numbers-mode                 )  ;; Show line numbers
 
 ;; Recent Files
 (recentf-mode 1)
@@ -142,15 +148,15 @@
 (global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 ;; Remeber Shit
-(use-package command-log-mode
-  ;; :straight t
-  ;; (:type built-in)
-  :diminish
-  (command-log-mode)
-  :config
-   (global-command-log-mode)
-   (setq command-log-mode-window-size 0.5)
-   (setq command-log-mode-auto-show t))
+;; (use-package command-log-mode
+;;   ;; :straight t
+;;   ;; (:type built-in)
+;;   :diminish
+;;   (command-log-mode)
+;;   :config
+;;    (global-command-log-mode)
+;;    (setq command-log-mode-window-size 1.5)
+;;    (setq command-log-mode-auto-show t))
 
 ;; hippie expand is dabbrev expand on steroids
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev
@@ -163,19 +169,7 @@
                                          try-expand-line
                                          try-complete-lisp-symbol-partially
                                          try-complete-lisp-symbol))
-
-
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
-
-;; replace buffer-menu with ibuffer
- (global-set-key (kbd "C-x C-b") #'ibuffer)
-
-;; Start proced in a similar manner to dired
-(global-set-key (kbd "C-x p") #'proced)
-
-;; align code in a pretty way
-(global-set-key (kbd "C-x \\") #'align-regexp)
-
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END SANE SETTINGS ;;;;;;;;;;;;;;;;;
@@ -207,7 +201,6 @@
   :custom
   (aw-minibuffer-flag t)
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  ;; (aw-dispatch-always t)
   :config
   (global-set-key (kbd "M-o") 'ace-window)
   ;; (global-set-key (kbd "C-x o") 'ace-window)
@@ -236,9 +229,9 @@
 ;;   :hook (dired-mode . dired-hide-dotfiles-mode)
 ;;   :config)
 
-;; (use-package magit
-;;   :ensure t
-;;   :bind (("C-x g" . magit-status)))
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
 
 ;; (use-package git-timemachine
 ;;   :ensure t
@@ -358,7 +351,7 @@
   :bind (
          ;; C-x bindings (ctl-x-map)
          ("C-x M-;" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b"   . consrult-buffer)              ;; orig. switch-to-buffer
+         ("C-x b"   . consult-buffer)              ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ;; ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
          ;; Custom M-# bindings for fast register access
@@ -447,11 +440,11 @@
 ;;
 ;; TODO: doom-one??
 ;; monotropic, modus themes --- Still looking for a nice light for prose.
+;; material theme is a nice dark one if I get bored.
 (setq custom-safe-themes t)
 ;; (load-theme 'discreet t)
 ;; (load-theme 'gruber-darker t)
 (load-theme 'gruber-shrews t)
-;; (load-theme 'spaceway t)
 ;; (load-theme 'gruvbox-dark-soft t) ;; no worky
 ;; (load-theme 'tsdh-light t)
 ;;  (load-theme 'zenburn t)
@@ -610,6 +603,12 @@
 ;;
 ;;
 
+;;; parens
+ (use-package smartparens
+  :config
+  (smartparens-global-mode -1))
+  ;;:hook (prog-mode . smartparens-mode))
+
 (use-package yaml-mode
   :ensure t)
 
@@ -639,6 +638,74 @@
 
 ;; Enable reference mangment
 (add-hook 'LaTeX-mode-map #'reftex-mode)
+
+
+;;;;;; tree-sitter Emacs-29
+;; https://git.savannah.gnu.org/cgit/emacs.git/tree/admin/notes/tree-sitter/starter-guide?h=feature/tree-sitter
+
+(use-package tree-sitter
+  :ensure t
+  :config
+  ;; activate tree-sitter on any buffer containing code for which it has a parser available
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs
+  :ensure t
+  :after tree-sitter)
+;; auto-format different source code files extremely intelligently;; https://github.com/radian-software/apheleia;; (use-package apheleia;;   :ensure t;;   :config;;   (apheleia-global-mode -1))
+
+;; Enabled inline static analysis
+(add-hook 'prog-mode-hook #'flymake-mode)
+
+;;; Pop-up completion
+(unless (package-installed-p 'corfu)
+  (package-install 'corfu))
+
+;; Enable autocompletion by default in programming buffers
+(add-hook 'prog-mode-hook #'corfu-mode)
+
+;;;;; LSP
+;; not necessary-- built into Emacs-29
+(use-package eglot
+:ensure t)
+
+;; npm install -g bash-language-server@4.0.0-beta.3
+(add-hook 'bash-mode-hook 'eglot-ensure)
+
+;;sudo apt-get install clangd-12
+(add-hook 'c-mode-hook 'eglot-ensure)
+
+;; go install golang.org/x/tools/gopls@latest
+(add-hook 'go-mode-hook #'eglot-ensure)
+
+;; TODO: check this PY setup: https://gist.github.com/Nathan-Furnal/b327f14e861f009c014af36c1790ec49F
+;; 
+(setq python-shell-interpreter "python3")
+(add-hook 'python-mode-hook 'eglot-ensure)
+
+
+(use-package python
+  :config
+  ;; Remove guess indent python message
+  (setq python-indent-guess-indent-offset-verbose nil))
+
+;; <OPTIONAL> Buffer formatting on save using black.
+;; See: https://github.com/pythonic-emacs/blacken.
+(use-package blacken
+  :ensure t
+  :defer t
+  :custom
+  (blacken-allow-py36 t)
+  (blacken-skip-string-normalization t)
+  :hook (python-mode-hook . blacken-mode))
+
+;; gem install solargraph
+(add-hook 'ruby-mode-hook 'eglot-ensure)
+
+;;; Inline static analysis
+(add-hook 'prog-mode-hook #'flymake-mode)
+
 
 ;;
 ;;
@@ -882,57 +949,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;;
 ;;
 ;;; IRC Client
-
-;; (setq erc-server "irc.libera.chat"
-;;       erc-nick "your-favorite-nick"    ; Change this!
-;;       erc-user-full-name "Emacs User"  ; And this!
-;;       erc-track-shorten-start 8
-;;       erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs"))
-;;       erc-kill-buffer-on-part t
-;;             erc-auto-query 'bury)
-
-;; (use-package erc
-;;   :custom
-;;   (erc-autojoin-channels-alist '(( "#bash" "#emacs" "#latex" "#org-mode" "systemcrafters")))
-;;   (erc-autojoin-timing 'ident)
-;;   (erc-fill-function 'erc-fill-static)
-;;   (erc-fill-static-center 22)
-;;   (erc-hide-list '("JOIN" "PART" "QUIT"))
-;;   (erc-lurker-hide-list '("JOIN" "PART" "QUIT"))
-;;   (erc-lurker-threshold-time 43200)
-;;   (erc-prompt-for-nickserv-password nil)
-;;   (erc-server-reconnect-attempts 5)
-;;   (erc-server-reconnect-timeout 3)
-;;   (erc-track-exclude-types '("JOIN" "MODE" "NICK" "PART" "QUIT"
-;;                              "324" "329" "332" "333" "353" "477"))
-;;   :config
-;;   (add-to-list 'erc-modules 'notifications)
-;;   (add-to-list 'erc-modules 'spelling)
-;;   (erc-services-mode 1)
-;;   (erc-update-modules))
-
-;; ;; Auto-log channels
-;; (setq-default erc-enable-logging t)
-;; (setq erc-save-buffer-on-part nil
-;;       erc-save-queries-on-quit nil
-;;       erc-log-write-after-send t
-;;       erc-log-write-after-insert t
-;;       ;; erc-log-insert-log-on-open t ;; So bad. Can spam the channel! Why?
-;;       erc-log-channels-directory (file-name-as-directory
-;;                                   (concat user-emacs-directory "erc"))
-;;       erc-server-auto-reconnect t
-;;       ;; erc-server-reconnect-attempts t ;; Don't give up
-;;       ;; erc-server-reconnect-timeout 5
-;;       erc-prompt 'my-erc-prompt
-;;       )
-
-
-;; (erc-tls :server "irc.libera.chat" :port 6697 :nick "centzon"
-;;     :full-name "Dios del Viente"
-;;     :password ""))
-
-
-
 (setq rcirc-server-alist
       '(("irc.libera.chat" :channels ("#emacs" "#org-mode" "#systemcrafters")
          :port 6697 :encryption tls)))
@@ -973,13 +989,6 @@ point reaches the beginning or end of the buffer, stop there."
   (mastodon-discover)
   (setq mastodon-instance-url "https://emacs.ch"
         mastodon-active-user "ct42"))
-
-;;; Gemini -- not Gopher
-(use-package elpher :ensure t)
-(use-package gemini-mode :ensure t)
-
-
-
 
 ;;
 ;;
