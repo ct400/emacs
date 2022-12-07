@@ -444,10 +444,11 @@
 (setq custom-safe-themes t)
 ;; (load-theme 'discreet t)
 ;; (load-theme 'gruber-darker t)
-(load-theme 'gruber-shrews t)
+  (load-theme 'gruber-shrews t)
+;; (load-theme 'popos t)
 ;; (load-theme 'gruvbox-dark-soft t) ;; no worky
 ;; (load-theme 'tsdh-light t)
-;;  (load-theme 'zenburn t)
+;; (load-theme 'zenburn t)
 ;; (set-face-attribute 'region nil :background "#6A5E51" :foreground "#282828") ;; use w/ gruvbox
 
 
@@ -481,7 +482,8 @@
 (use-package rainbow-mode
   ;; :straight t
   :diminish
-  :init)
+  :init
+  (rainbow-mode))
 
 ;;
 ;;
@@ -497,8 +499,15 @@
   :ensure t
   :custom
   (which-key-show-transient-maps t)
-  :config
+  :init
   (which-key-mode))
+
+;; show me the keys
+(use-package keycast
+  :ensure t
+  :init
+  (add-to-list 'global-mode-string '("" mode-line-keycast))
+  (keycast-mode-line-mode))
 
 ;; inline descriptions from docstrings
 (use-package marginalia
@@ -586,7 +595,8 @@
   :hook ((text-mode
           prog-mode
           conf-mode
-          snippet-mode) . yas-minor-mode-on)
+          snippet-mode)
+	  . yas-minor-mode-on)
   :config
   (setq yas-snippet-dir "~/.config/emacs/yasnippets")
   ;; (setq yas-snippet-dirs 
@@ -742,20 +752,6 @@
 (global-set-key (kbd "M-<down>")    'ew/move-line-down)
 ;;; END movey liney
 
-;; ;; works but, no newline
-;; ;; emacs-surround also allows deletion/switching
-;; (defun ew/surround (begin end open close)
-;;   "Put OPEN at START and CLOSE at END of the region.
-;; If you omit CLOSE, it will reuse OPEN."
-;;   (interactive  "r\nsStart: \nsEnd: ")
-;;   (when (string= close "")
-;;     (setq close open))
-;;   (save-excursion
-;;     (goto-char end)
-;;     (insert close)
-;;     (goto-char begin)
-;;     (insert open)))
-
 (defun ew/toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
@@ -783,11 +779,34 @@
 
 (define-key ctl-x-5-map "t" 'ew/toggle-window-split)
 
+(defun sjy2/delete-leading-whitespace-in-region (start end)
+  "Delete whitespace at the beginning of each line in region."
+  (interactive "*r")
+  (save-excursion
+    (if (not (bolp)) (forward-line 1))
+    (delete-whitespace-rectangle (point) end nil)))
+(global-set-key (kbd "C-c C-w l") #'sjy2/delete-leading-whitespace-in-region)
+
+(defun sjy2/compress-spaces-in-region (start end)
+  "Compress multiple spaces to a single space on a line-by-line basis.
+   It does not affect leading or trailing spaces."
+  (interactive "r")
+  (save-excursion
+    (goto-char start)
+    (while (re-search-forward " +" end t)
+      (replace-match " "))))
+(global-set-key (kbd "C-c C-w c") #'sjy2/compress-spaces-in-region)
+
 (defun sjy2/kill-all ()
   (interactive)
   (delete-other-windows)
   (abort-minibuffers)
   (keyboard-quit))
+
+(defun sjy2/insert-file-name ()
+  "Insert the full path file name into the current buffer."
+  (interactive)
+  (insert (buffer-file-name)))
 
 (defun sjy2/log-diary()
   (interactive)
