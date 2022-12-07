@@ -314,9 +314,9 @@
                                             :background gruber-shrews-bg+1))))
    `(magit-log-head-label-head   ((t ,(list :foreground gruber-shrews-fg
                                             :background gruber-shrews-bg+1))))
-   `(magit-item-highlight   ((t (:background ,gruber-shrews-bg+1))))
-   `(magit-tag ((t ,(list :foreground gruber-shrews-yellow
-                          :background gruber-shrews-bg))))
+   `(magit-item-highlight        ((t (:background ,gruber-shrews-bg+1))))
+   `(magit-tag           ((t ,(list :foreground gruber-shrews-yellow
+                                    :background gruber-shrews-bg))))
    `(magit-blame-heading ((t ,(list :background gruber-shrews-bg+1
                                     :foreground gruber-shrews-fg))))
 
@@ -326,9 +326,9 @@
    ;; markdown-mode
    `(markdown-blockquote-face  ((t (:inherit 'normal))))
    `(markdown-bold-face        ((t (:inherit 'bold))))
-   `(markdown-header-face      ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo"))))
-   `(markdown-italic-face      ((t (:slant oblique :underline t :height 1.1 :family "Iosevka"))))
-   `(markdown-markup-face      ((t (:foreground "#569034" :height 0.9))))
+   `(markdown-header-face      ((t (:foreground "#4B919E"       :height 1.2))))
+   `(markdown-italic-face      ((t (:slant oblique :underline t :height 1.1))))
+   `(markdown-markup-face      ((t (:foreground "#569034"       :height 0.9))))
    `(markdown-pre-face         ((t (:foreground ,gruber-shrews-coffee))))
 
    ;; Marginalia
@@ -344,7 +344,7 @@
 
    ;; keycast-mode
    `(keycast-key      ((t (:background "#002244" :foreground "#CC8C3C"
-	                   :weight bold  :box (:line-width -1 :style released-button)))))
+	                   :weight bold           :box (:line-width -1 :style released-button)))))
    `(keycast-command  ((t (:foreground "#CC8C3C"  :box (:line-width -1 :style released-button)))))
    
    ;; Neo Dir
