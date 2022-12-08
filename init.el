@@ -8,8 +8,10 @@
 ;; refs: 
 ;;   - https://github.com/bbatsov/emacs.d/blob/master/init.el
 ;;   - https://github.com/tonyaldon/emacs.d/blob/master/init.el
+;;   - nhttps://github.com/VernonGrant/emacs-keyboard-shortcuts
 ;; TODO:
 ;;   - make more simple
+;;   - check this from time to time: yhttps://github.com/jwiegley/use-package-examples
 ;; ---
 
 ;;; here be dragons
@@ -232,6 +234,14 @@
 (use-package all-the-icons-dired
   :defer
   :hook (dired-mode . all-the-icons-dired-mode))
+
+;; TODO: buffer consolidation
+;; https://github.com/crocket/dired-single
+
+;;TODO: KEYS
+;; set a ket for M-x recentf -- to open recent files. Or not. C-x b is good enough?
+;; (define-key dired-mode-map (kbd "h")  'dired-up-directory)      ;; this is usu help
+;; (define-key dired-mode-map (kbd "c" ) 'dired-create-empty-file) ;; TODO: this mofo
 
 ;; (use-package dired-hide-dotfiles
 ;;   :defer
@@ -484,21 +494,11 @@
 
 ;;; Doom-modeline -- I ndáiríre??
 ;; muchos opciones
-(use-package doom-modeline
-  :ensure t
-  :hook (after-init . doom-modeline-mode)
-  :init
-  (setq doom-modeline-minor-modes t)
-  (setq doom-modeline-vcs-max-length 20)
-  (setq doom-modeline-lsp t)
-  (setq doom-modeline-icon t)
-  (setq doom-modeline-height 14)
-  ;; (setq doom-modeline-bar-width 6)
-  ;; (setq doom-modeline-github t)
-  ;; (setq doom-modeline-mu4e nil)
-  ;; (setq doom-modeline-irc nil)
-  :config
-  (doom-modeline-mode 1))
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :hook (after-init . doom-modeline-mode)
+;;   :init
+;;   (doom-modeline-mode 1))
 
 ;;; PRETIFFY
 
@@ -549,8 +549,22 @@
 (use-package keycast
   :ensure t
   :init
-  (add-to-list 'global-mode-string '("" mode-line-keycast))
-  (keycast-mode-line-mode))
+  (add-to-list 'global-mode-string '("s" mode-line-keycast))
+  (keycast-mode-line-mode)
+  )
+
+;; ;; for Doom-modeline, apparently
+;; (with-eval-after-load 'keycast
+;;   (define-minor-mode keycast-mode-line-mode
+;;   ;;(define-minor-mode keycast-mode
+;;     "Show current command and its key binding in the mode line."
+;;     :global t
+;;    ;; (if keycast-mode
+;;     (if keycast-mode-line-mode
+;;       (add-hook    'pre-command-hook 'keycast--update t)
+;;       (remove-hook 'pre-command-hook 'keycast--update)))
+;;       (add-to-list 'global-mode-string '("" mode-line-keycast)))
+
 
 ;; inline descriptions from docstrings
 (use-package marginalia
@@ -964,6 +978,20 @@ point reaches the beginning or end of the buffer, stop there."
                      ("sh"  . "src sh"))))
        (dolist (template templates)
           (push template org-structure-template-alist))))
+
+;;; Org Roam
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/_scratch/org/roam")
+  (org-roam-complettions-everywhere t) ;; faster than M-x completion-at-point
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-note-insert))
+  :config
+  (org-roam-setup))
 
 ;;; notes for PDFs
 (use-package org-noter
