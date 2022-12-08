@@ -21,7 +21,7 @@
 
 (set-frame-parameter (selected-frame) 'alpha-background 0.92)  ;; new in Emacs 29
 
-(setq split-window-horizontally -1)
+(setq split-window-horizontally 1)
 
 ;;;;;;;;;;;;;;;;; PATHS ;;;;;;;;;;;;;;;;;
 ;;
@@ -82,12 +82,12 @@
 (load-file "~/.config/emacs/sjy2-lisp/sjy2-keybinds.el")
 
 ;; replace buffer-menu with ibuffer
- (global-set-key (kbd "C-x C-b") #'ibuffer)
+(global-set-key (kbd "C-x C-b") #'ibuffer)
 
 ;; Start proced in a similar manner to dired
 (global-set-key (kbd "C-x p") #'proced)
 
-;; align code in a pretty way
+;; align code
 (global-set-key (kbd "C-x \\") #'align-regexp)
 ;;
 ;;
@@ -113,7 +113,8 @@
 (global-auto-revert-mode       1)    ;; auto-update when on-disk-change
 (global-hl-line-mode           1)    ;; Highlight line at point.
 (visual-line-mode              t)    ;; Treat each display line as if
-(column-number-mode            1)    ;; columns and rows in mode line
+;;(column-number-mode            1)    ;; columns and rows in mode line
+(setq column-number-mode       t)    ;; columns and rows in mode line
 (line-number-mode              1)
 (delete-selection-mode         1)    ;; typing replaces active selection
 (savehist-mode                 1)    ;; remember last minibuffer commands
@@ -194,7 +195,7 @@
 
 
 ;; better window switching?
-;; tbh C-x o works pretty well for the most part
+;; tbh C-x o works fairly well for the most part
 ;; C-x o x <wind-num> deletes it
 (use-package ace-window
   :ensure t
@@ -207,6 +208,14 @@
   ;; (global-set-key [remap other-window] 'ace-window)
   (ace-window-display-mode 1))
 
+;; TODO: filter groups. 
+;; https://blog.modelworks.ch/ibuffer-for-looking-at-your-buffers-in-emacs/
+(use-package ibuffer
+  :ensure t
+  :config
+  (setq ibuffer-movement-cycle-true t)
+  (setq ibuffer-show-empty-filter-groups nil)
+)
 
 ;;
 ;;
@@ -461,13 +470,35 @@
 ;; (set-face-attribute 'default nil :font "Iosevka-13")
 ;; (set-face-attribute 'default nil :font "Menlo-12")
 
+;;; TODO: wanking with gruber-shrews
 (custom-set-faces 
  '(Info-quoted       ((t (:foreground "#F15952" :family "Hack-13"))))
  '(minibuffer-prompt ((t (:foreground "#4B919E" :family "Menlo-14"))))
 
- `(markdown-header-face      ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo"))))
- `(markdown-italic-face      ((t (:slant oblique :underline t :height 1.1 :family "Iosevka"))))
+ ;;(setq-default cursor-type 'bar) 
+ '(set-cursor-color "#F7BA00")
+
+ `(markdown-header-face ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo"))))
+ `(markdown-italic-face ((t (:slant oblique :underline t :height 1.1 :family "Iosevka"))))
  )
+
+;;; Doom-modeline -- I ndáiríre??
+;; muchos opciones
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode)
+  :init
+  (setq doom-modeline-minor-modes t)
+  (setq doom-modeline-vcs-max-length 20)
+  (setq doom-modeline-lsp t)
+  (setq doom-modeline-icon t)
+  (setq doom-modeline-height 14)
+  ;; (setq doom-modeline-bar-width 6)
+  ;; (setq doom-modeline-github t)
+  ;; (setq doom-modeline-mu4e nil)
+  ;; (setq doom-modeline-irc nil)
+  :config
+  (doom-modeline-mode 1))
 
 ;;; PRETIFFY
 
@@ -484,8 +515,16 @@
 
 ;; show hex colours
 (use-package rainbow-mode
+  :ensure t
   ;; :straight t
-  :diminish
+  :custom
+  (setq rainbow-html-colors t)
+  ;; TODO: get named-colours to display
+  (add-to-list 'rainbow-html-colors-alist 
+    '(("gruber-shrews-niagara-1" . "#565f73")
+      ("gruber-shrews-niagara"   . "#96a6c8")
+      ("gruber-shrews-wisteria"  . "#9e95c7")
+  ))
   :init
   (rainbow-mode))
 
@@ -526,10 +565,10 @@
 ;; prettier doc pages
 (use-package helpful
   :ensure t)
-;; Note that the built-in `describe-function' includes both functions
-;; and macros. `helpful-function' is functions only, so we provide
-;; `helpful-callable' as a drop-in replacement.
-(global-set-key (kbd "C-h f")   #'helpful-callable)
+;; TODO: ¿Por qué no hay helfpul para describe-mode?
+(global-set-key (kbd "C-h c")   #'helpful-command) ;; les interactifs
+(global-set-key (kbd "C-h f")   #'helpful-callable) ;; also inc. macros
+(global-set-key (kbd "C-h F")   #'helpful-function)
 (global-set-key (kbd "C-h v")   #'helpful-variable)
 (global-set-key (kbd "C-h k")   #'helpful-key)
 (global-set-key (kbd "C-h o")   #'helpful-symbol)
@@ -620,8 +659,8 @@
 ;;; parens
  (use-package smartparens
   :config
-  (smartparens-global-mode -1))
-  ;;:hook (prog-mode . smartparens-mode))
+  (smartparens-global-mode -1)
+  (add-hook 'prog-mode-hook #'smartparens-mode))
 
 (use-package yaml-mode
   :ensure t)
@@ -629,10 +668,10 @@
 (use-package markdown-mode
   ;; :straight t
   :ensure t
-  :mode (("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode)
-         ("README\\.md\\.markdown\\'" . gfm-mode))
-  :init (setq markdown-command "pandoc")
+  :mode 
+  (("README\\.md\\.markdown\\'" . gfm-mode)) ;; github flavour
+  :init 
+  (setq markdown-command "pandoc")
   ;; :init (setq markdown-command "multimarkdown"))
   (setq markdown-fontify-code-blocks-natively t)
     (add-hook 'markdown-mode-hook
