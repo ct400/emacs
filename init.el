@@ -42,6 +42,7 @@
 ;; No custom-set-variables in init.el
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (setq undo-undtree-history-directory-alist '("~/.config/emacs/tmp/undo-tree"))
+(setq backup-directory-alist `((".*" . ,user-emacs-directory)))
 (setq desktop-save-path '("~/.config/emacs/tmp"))    ;; path to desktop saves
 (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
   auto-save-file-name-transforms 
@@ -91,6 +92,21 @@
 
 ;; align code
 (global-set-key (kbd "C-x \\") #'align-regexp)
+
+
+  ;; this lets us have long lines go off the side of the screen instead of hosing up the ascii art
+(global-set-key "\C-x\C-l" 'toggle-truncate-lines)
+(global-set-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y")	; Duplicate a whole line
+(global-set-key (kbd "C-S-R") 'rename-file)
+(bind-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y") ; duplicate whole line
+(define-key global-map "\M-Q" 'unfill-paragraph)
+
+;;; faster M-xing
+
+(defalias 'jos 'just-one-space)
+(defalias 'job 'delete-blank-lines) ;; C-x C-o in  Emacs-q
+
+
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END KEYBINDS ;;;;;;;;;;;;;;;;;
@@ -140,8 +156,8 @@
         (lambda (fg) (set-face-foreground 'mode-line fg))
         orig-fg))))
 
-(setq-default display-line-numbers-type  'absolute)  ;; relative nonsense without evil    
-(global-display-line-numbers-mode                 )  ;; Show line numbers
+(setq-default display-line-numbers-type  'absolute)  ;; 'relative   
+(global-display-line-numbers-mode                 )
 
 ;; Recent Files
 (recentf-mode 1)
@@ -149,17 +165,6 @@
 (setq recentf-max-saved-items 25)
 (run-at-time nil (* 5 60) 'recentf-save-list)
 (global-set-key (kbd "C-x C-r") 'recentf-open-files)
-
-;; Remeber Shit
-;; (use-package command-log-mode
-;;   ;; :straight t
-;;   ;; (:type built-in)
-;;   :diminish
-;;   (command-log-mode)
-;;   :config
-;;    (global-command-log-mode)
-;;    (setq command-log-mode-window-size 1.5)
-;;    (setq command-log-mode-auto-show t))
 
 ;; hippie expand is dabbrev expand on steroids
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev
@@ -181,20 +186,17 @@
 ;;;;;;;;;;;;;;;;; NAVIGATION ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-;; (unless (package-installed-p 'avy)
-;;   (package-install 'avy))
 
 (use-package avy
   :ensure t
-  :bind (("C-j"     . avy-goto-char-timer) ;; was electic indent
+  :bind (("C-j"     . avy-goto-char-timer)) ;; was electic indent
          ;; ("M-g M-w" . avy-goto-word-or-subword-1)
          ;; ("M-g M-c" . avy-goto-char)
-         ("M-g M-l" . avy-goto-line)) ;;beware consult binds
+         ;; ("M-g M-l" . avy-goto-line) ;; consult takes precedence
   :commands (avy-goto-word--or-subword-1 avy-goto-char avy-goto-char-timer avy-go-to-line))
 
 ;; Jump to any open window or frame
 (setq avy-all-windows 'all-frames)
-
 
 ;; better window switching?
 ;; tbh C-x o works fairly well for the most part
@@ -207,7 +209,7 @@
   :config
   (global-set-key (kbd "M-o") 'ace-window)
   ;; (global-set-key (kbd "C-x o") 'ace-window)
-  ;; (global-set-key [remap other-window] 'ace-window)
+  (global-set-key [remap other-window] 'ace-window)
   (ace-window-display-mode 1))
 
 ;; TODO: filter groups. 
@@ -248,6 +250,7 @@
 ;;   :hook (dired-mode . dired-hide-dotfiles-mode)
 ;;   :config)
 
+;;; VERSION CONTROL
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)))
@@ -255,6 +258,7 @@
 ;; (use-package git-timemachine
 ;;   :ensure t
 ;;   :bind (("s-g" . git-timemachine)))
+
 
 ;;;;;;;;;;;;;;;;; COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
@@ -487,9 +491,6 @@
 
  ;;(setq-default cursor-type 'bar) 
  '(set-cursor-color "#F7BA00")
-
- `(markdown-header-face ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo"))))
- `(markdown-italic-face ((t (:slant oblique :underline t :height 1.1 :family "Iosevka"))))
  )
 
 ;;; Doom-modeline -- I ndáiríre??
@@ -499,6 +500,13 @@
 ;;   :hook (after-init . doom-modeline-mode)
 ;;   :init
 ;;   (doom-modeline-mode 1))
+
+(use-package unfill
+  :ensure t
+;; M-x unfill-region
+;; M-x unfill-paragraph
+;; M-x unfill-toggle
+  )
 
 ;;; PRETIFFY
 
@@ -545,26 +553,44 @@
   :init
   (which-key-mode))
 
-;; show me the keys
 (use-package keycast
   :ensure t
   :init
-  (add-to-list 'global-mode-string '("s" mode-line-keycast))
-  (keycast-mode-line-mode)
-  )
+   (add-to-list 'global-mode-string '(" " keycast-mode-line-mode 'APPEND))
+   (keycast-mode-line-mode))
 
-;; ;; for Doom-modeline, apparently
-;; (with-eval-after-load 'keycast
-;;   (define-minor-mode keycast-mode-line-mode
-;;   ;;(define-minor-mode keycast-mode
-;;     "Show current command and its key binding in the mode line."
-;;     :global t
-;;    ;; (if keycast-mode
-;;     (if keycast-mode-line-mode
-;;       (add-hook    'pre-command-hook 'keycast--update t)
-;;       (remove-hook 'pre-command-hook 'keycast--update)))
-;;       (add-to-list 'global-mode-string '("" mode-line-keycast)))
+;; (use-package minions
+;;   :ensure t
+;;   :config
+;;   (minions-mode 1))
 
+(setq mode-line-compact nil)
+
+;; pure silliness
+(use-package dim
+  :ensure t)
+
+(dim-major-name 'markdown-mode   " Ⓜ️")
+(dim-major-name 'org-mode        " 🦄")
+(dim-major-name 'emacs-lisp-mode " ε")
+(dim-major-name 'calendar-mode   " 📆")
+(dim-major-name 'inferior-emacs-lisp-mode " ε-")
+(dim-major-name 'python-mode     " 🐍")
+(dim-major-name 'rust-mode       " 🦀")
+(dim-major-name 'ruby-mode       " RB") ;; no ruby emoji?
+(dim-major-name 'perl-mode       " 🐪")
+;; minor
+(dim-minor-name 'isearch-mode       " 🔎")
+(dim-minor-name 'rainbow-mode       " 🌈")
+(dim-minor-name 'undo-tree-mode     " 🌳")
+(dim-minor-name 'which-key-mode     " ⌨️")
+(dim-minor-name 'yas-minor-mode     " ✂️")
+(dim-minor-name 'visual-line-mode   " ↩")
+(dim-minor-name 'auto-fill-function " ↵")
+(dim-minor-name 'view-mode          " 👀" 'view)
+(dim-minor-name 'eldoc-mode         " εd" 'eldoc)
+(dim-minor-name 'whitespace-mode    " _"  'whitespace)
+(dim-minor-name 'paredit-mode       " ()" 'paredit)
 
 ;; inline descriptions from docstrings
 (use-package marginalia
@@ -580,14 +606,13 @@
 (use-package helpful
   :ensure t)
 ;; TODO: ¿Por qué no hay helfpul para describe-mode?
-(global-set-key (kbd "C-h c")   #'helpful-command) ;; les interactifs
+(global-set-key (kbd "C-h c")   #'helpful-command)  ;; les interactifs
 (global-set-key (kbd "C-h f")   #'helpful-callable) ;; also inc. macros
 (global-set-key (kbd "C-h F")   #'helpful-function)
 (global-set-key (kbd "C-h v")   #'helpful-variable)
 (global-set-key (kbd "C-h k")   #'helpful-key)
 (global-set-key (kbd "C-h o")   #'helpful-symbol)
 (global-set-key (kbd "C-h p")   #'helpful-at-point)
-(global-set-key (kbd "C-c C-d") #'helpful-at-point)
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END HELP AND INFO ;;;;;;;;;;;;;;;;;
@@ -636,7 +661,7 @@
   (setq undo-tree-auto-save-history t)
   :custom
   (undo-tree-visualizer-diff t)
-  (undo-tree-history-directory-alist '(("." . "~/.config/emacs/undo-tree")))
+  (undo-tree-history-directory-alist '(("." . "~/.config/emacs/tmp/undo-tree")))
   (undo-tree-visualizer-timestamps t))
 
 (use-package default-text-scale
@@ -655,10 +680,7 @@
           snippet-mode)
 	  . yas-minor-mode-on)
   :config
-  (setq yas-snippet-dir "~/.config/emacs/yasnippets")
-  ;; (setq yas-snippet-dirs 
-  ;;   '("~/.config/emacs/yasnippets" 
-  ;;     "~/Dropbox/emacs-yasnippets"))
+  (setq yas-snippet-dir "~/.config/emacs/snippets")
   (yas-global-mode 1))    ;; or M-x yas-reload-all
 
 ;;
@@ -694,11 +716,27 @@
           (add-hook 'after-save-hook 'check-parens nil t)))))
 
 ;;; LaTeX support
-(unless (package-installed-p 'auctex)
-  (package-install 'auctex))
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
+
+(use-package latex
+  :after tex
+  :ensure auctex
+  :hook ((LaTeX-mode . electric-pair-mode)
+         (LaTeX-mode . my/latex-with-outline))
+  :mode ("\\.tex\\'" . latex-mode)
+  :defines (TeX-auto-save
+            TeX-parse-self
+            TeX-electric-escape
+            TeX-PDF-mode
+            TeX-source-correlate-method
+            TeX-newline-function
+            TeX-view-program-list
+            TeX-view-program-selection
+            TeX-mode-map)
+  :bind
+  (:map LaTeX-mode-map
+   ("M-RET" . LaTeX-insert-item)
+   :map TeX-source-correlate-map     
+   ([C-down-mouse-1] . TeX-view-mouse)))
 
 ;; Enable LaTeX math support
 (add-hook 'LaTeX-mode-map #'LaTeX-math-mode)
@@ -809,6 +847,36 @@
 (global-set-key (kbd "M-<down>")    'ew/move-line-down)
 ;;; END movey liney
 
+
+(defun ew/resize-window (&optional arg)
+; Hirose Yuuji and Bob Wiener
+; https://www.emacswiki.org/emacs/WindowResize
+  "*Resize window interactively."
+  (interactive "p")
+  (if (one-window-p) (error "Cannot resize sole window"))
+  (or arg (setq arg 1))
+  (let (c)
+    (catch 'done
+      (while t
+	(message
+	 "h=heighten, s=shrink, w=widen, n=narrow (by %d);  1-9=unit, q=quit"
+	 arg)
+	(setq c (read-char))
+	(condition-case ()
+	    (cond
+	     ((= c ?h) (enlarge-window arg))
+	     ((= c ?s) (shrink-window arg))
+	     ((= c ?w) (enlarge-window-horizontally arg))
+	     ((= c ?n) (shrink-window-horizontally arg))
+	     ((= c ?\^G) (keyboard-quit))
+	     ((= c ?q) (throw 'done t))
+	     ((and (> c ?0) (<= c ?9)) (setq arg (- c ?0)))
+	     (t (beep)))
+	  (error (beep)))))
+    (message "Done.")))
+(global-set-key (kbd "C-c C-w w") #'ew/resize-window)
+
+
 (defun ew/toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
@@ -857,8 +925,21 @@
 (defun sjy2/kill-all ()
   (interactive)
   (delete-other-windows)
+  (abort-recursive-edit)
   (abort-minibuffers)
   (keyboard-quit))
+
+(defun sjy2/toggle-org-fundamental ()
+"Toggle org and fundamental mode"
+  (interactive)
+   (message "current mode is %s" major-mode)
+   (if (eq major-mode 'org-mode)
+        ;;(fundamental-mode)
+        (major-mode-suspend))
+   (if (eq major-mode 'text-mode (or (eq major-mode 'fundamental-mode)))
+        (org-mode)))
+        
+;; (global-set-key (kbd "C-x C-t") 'text-mode) ;; orig transpose lines
 
 (defun sjy2/insert-file-name ()
   "Insert the full path file name into the current buffer."
@@ -900,6 +981,42 @@ point reaches the beginning or end of the buffer, stop there."
   [remap move-beginning-of-line]
   'rde-move-beginning-of-line)
 
+;; Unfill paragraph
+;; replaced with Purcell's unfill package
+;; (defun sjy2/unfill-paragraph ()
+;;   "Convert a multi-line paragraph into a single line of text."
+;;   (interactive)
+;;   (let ((fill-column (point-max)))
+;; 	(fill-paragraph nil)))
+;; (define-key global-map "\M-Q" 'sjy2/unfill-paragraph)
+
+
+;;;;;;;;;;;;;;;;; WRITING AND SHIT ;;;;;;;;;;;;;;;;;
+;;
+;;
+
+(require 'indirect-sentence)
+ 
+
+;; (straight-use-package '(fountain-mode
+;; https://github.com/rnkn/fountain-mode
+;; https://www.youtube.com/watch?v=Be1hE_pQL4w
+  ;; :type git
+  ;; :host github
+  ;; :repo "rnkn/fountain-mode"))
+
+(use-package olivetti
+  :ensure t
+  :config
+  (setq olivetti-body-width 0.65)
+  (setq olivetti-minimum-body-width 72)
+  (setq olivetti-recall-visual-line-mode-entry-state t))
+
+
+;;
+;;
+;;;;;;;;;;;;;;;;; END WRITING AND SHIT ;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;; ORGMODE ;;;;;;;;;;;;;;;;;
 ;;
@@ -929,6 +1046,14 @@ point reaches the beginning or end of the buffer, stop there."
       org-src-preserve-indentation nil
       org-startup-folded 'content
       org-cycle-separator-lines 2)
+
+
+(with-eval-after-load 'org       
+  (setq org-startup-indented t) ; Enable `org-indent-mode' by default
+  (setq fill-column 80)
+;;  (add-hook 'org-mode-hook #'auto-fill-mode)
+;;  (add-hook 'auto-fill-mode-on-hook (lambda () (setq fill-column 100)))
+  (add-hook 'org-mode-hook #'visual-line-mode))
 
 ;; show images by default
 (setq-default org-display-inline-images t)
@@ -986,10 +1111,12 @@ point reaches the beginning or end of the buffer, stop there."
   (setq org-roam-v2-ack t)
   :custom
   (org-roam-directory "~/_scratch/org/roam")
-  (org-roam-complettions-everywhere t) ;; faster than M-x completion-at-point
+  (org-roam-completions-everywhere t) ;; faster than completion-at-point
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-note-insert))
+         ("C-c n i" . org-roam-note-insert)
+         :map org-mode-map
+         ("C-M-i" . completion-at-point))
   :config
   (org-roam-setup))
 
@@ -1078,7 +1205,24 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   (mastodon-discover)
   (setq mastodon-instance-url "https://emacs.ch"
-        mastodon-active-user "ct42"))
+	mastodon-active-user "ct42"))
+
+;;; RSS news and all that
+
+(use-package elfeed
+ :ensure t
+ :config
+ (setq elfeed-db-directory (expand-file-name "elfeed" user-emacs-directory)
+   elfeed-show-entry-switch 'display-buffer)
+ :bind
+ ("C-x w" . elfeed ))
+
+;; Feeds are configged in $HOME/_scratch/org/elfeed.org
+(use-package elfeed-org
+  :ensure t
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/_scratch/org/elfeed.org")))
 
 ;;
 ;;
@@ -1097,5 +1241,9 @@ point reaches the beginning or end of the buffer, stop there."
 ;;
 ;;;;;;;;;;;;;;;;; END XXXX ;;;;;;;;;;;;;;;;;
 
+(custom-set-variables
+  '(whitespace-style
+   (quote
+    (face tabs spaces trailing space-before-tab newline indentation empty space-after-tab space-mark tab-mark))))
 
 ;;; END of init.el
