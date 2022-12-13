@@ -317,10 +317,24 @@
    `(magit-log-head-label-head   ((t ,(list :foreground gruber-shrews-fg
                                             :background gruber-shrews-bg+1))))
    `(magit-item-highlight        ((t (:background ,gruber-shrews-bg+1))))
+
    `(magit-tag           ((t ,(list :foreground gruber-shrews-yellow
                                     :background gruber-shrews-bg))))
    `(magit-blame-heading ((t ,(list :background gruber-shrews-bg+1
                                     :foreground gruber-shrews-fg))))
+
+   
+
+   ;; `(magit-tag           ((t ,(list :foreground gruber-shrews-yellow
+   ;;                                  :background gruber-shrews-bg))))
+   ;; `(magit-blame-heading ((t ,(list :background gruber-shrews-bg+1
+   ;;                                  :foreground gruber-shrews-fg))))
+
+   ;; git gutter/ fringe
+   '(git-gutter-fr:deleted   ((t (:foreground "#F15952" :background "#F15952"))))
+   '(git-gutter-fr:modified  ((t (:foreground "#4B919E" :background "#4B919E"))))
+   '(git-gutter-fr:added     ((t (:foreground "#87CF70" :background "#87CF70"))))
+   
    ;; Message
    `(message-header-name ((t (:foreground ,gruber-shrews-green))))
 
