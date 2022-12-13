@@ -255,15 +255,34 @@
   :ensure t
   :bind (("C-x g" . magit-status)))
 
-;; (use-package git-timemachine
-;;   :ensure t
-;;   :bind (("s-g" . git-timemachine)))
+(use-package git-timemachine
+   :ensure t
+   :bind (("s-g" . git-timemachine)))
 
+(use-package git-gutter
+  :ensure t
+  :config
+  (global-git-gutter-mode 1)
+  (setq git-gutter:update-interval 0.02))
+
+;; You can use git-gutter-fringe even if you disable vc-mode. While diff-hl benefits from VC.
+(use-package git-gutter-fringe
+  :ensure t
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added     [140]    nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified  [140]    nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted   [140]    nil nil '(center repeated)))
+
+  (custom-set-faces
+   '(git-gutter-fr:deleted   ((t (:foreground "#F15952" :background "#F15952"))))
+   '(git-gutter-fr:modified  ((t (:foreground "#4B919E" :background "#4B919E"))))
+   '(git-gutter-fr:added     ((t (:foreground "#87CF70" :background "#87CF70"))))
+ )
+   
 
 ;;;;;;;;;;;;;;;;; COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-
 ;; Marginalia is focused on annotations only.
 ;; Embark provides actions
 ;; Consult offers additional useful commands, like an enhanced buffer switcher and various navigation commands.
@@ -556,13 +575,10 @@
 (use-package keycast
   :ensure t
   :init
-   (add-to-list 'global-mode-string '(" " keycast-mode-line-mode 'APPEND))
-   (keycast-mode-line-mode))
+   (add-to-list 'global-mode-string '(" " keycast-mode-line-mode 'APPEND)))
+;;   (keycast-mode-line-mode))
+;; TODO: get keycast positioned AFTER minor modes!!
 
-;; (use-package minions
-;;   :ensure t
-;;   :config
-;;   (minions-mode 1))
 
 (setq mode-line-compact nil)
 
