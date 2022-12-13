@@ -42,7 +42,7 @@
 (deftheme gruber-shrews
   "Gruber Shrews color theme")
 
-;; Please, install rainbow-mode.
+;; Please, install rainbow-mode to view hex colors.
 
 (let ((gruber-shrews-fg        "#E4E3CF")
       (gruber-shrews-fg-1      "#E2CEBD")
@@ -51,22 +51,25 @@
       (gruber-shrews-bg-3      "#002244")
       (gruber-shrews-bg-2      "#00295E")
       (gruber-shrews-bg-1      "#1A4065");;"#003355"
-      (gruber-shrews-bg        "#001133");;"#001439"
+      (gruber-shrews-bg        "#001133")
       (gruber-shrews-bg+1      "#003B79")
       (gruber-shrews-bg+2      "#2E5292")
       (gruber-shrews-bg+3      "#4889C7")
+      (gruber-shrews-topaz-1   "#4B919E")
       (gruber-shrews-topaz     "#60D1B9")
       (gruber-shrews-coffee-1  "#52494e")
       (gruber-shrews-coffee    "#CA9F73")
       (gruber-shrews-white     "#F0F0F0")
       (gruber-shrews-black     "#181818")
       (gruber-shrews-red-1     "#8B0000")
-      (gruber-shrews-red       "#c73c3f")
+      (gruber-shrews-red       "#C73C3F")
       (gruber-shrews-red+1     "#F15952")
       (gruber-shrews-green-1   "#569034")
       (gruber-shrews-green     "#87CF70")    
       (gruber-shrews-yellow-1  "#d0b045")     
       (gruber-shrews-yellow    "#F7BA00")
+      (gruber-shrews-brown-2   "#724E21")      
+      (gruber-shrews-brown-1   "#A37030") 
       (gruber-shrews-brown     "#cc8c3c")
       (gruber-shrews-quartz    "#95a99f")
       (gruber-shrews-niagara-2 "#303540")
@@ -91,14 +94,13 @@
    `(agda2-highlight-number-face ((t (:foreground ,gruber-shrews-wisteria))))
 
    ;; AUCTeX
-   `(font-latex-bold-face ((t (:foreground ,gruber-shrews-quartz :bold t))))
-   `(font-latex-italic-face ((t (:foreground ,gruber-shrews-quartz :italic t))))
-   `(font-latex-math-face ((t (:foreground ,gruber-shrews-green))))
-   `(font-latex-sectioning-5-face ((t ,(list :foreground gruber-shrews-niagara
-                                             :bold t))))
-   `(font-latex-slide-title-face ((t (:foreground ,gruber-shrews-niagara))))
-   `(font-latex-string-face ((t (:foreground ,gruber-shrews-green))))
-   `(font-latex-warning-face ((t (:foreground ,gruber-shrews-red))))
+   `(font-latex-bold-face         ((t (:foreground ,gruber-shrews-quartz :bold t))))
+   `(font-latex-italic-face       ((t (:foreground ,gruber-shrews-quartz :italic t))))
+   `(font-latex-math-face         ((t R(:foreground ,gruber-shrews-green))))
+   `(font-latex-sectioning-5-face ((t (:foreground ,gruber-shrews-niagara :bold t))))
+   `(font-latex-slide-title-face  ((t (:foreground ,gruber-shrews-niagara))))
+   `(font-latex-string-face       ((t (:foreground ,gruber-shrews-green))))
+   `(font-latex-warning-face      ((t (:foreground ,gruber-shrews-red))))
 
    ;; Basic Coloring (or Uncategorized)
    `(border ((t ,(list :background gruber-shrews-bg-1
@@ -106,18 +108,18 @@
    `(cursor ((t (:background ,gruber-shrews-yellow))))
    `(default ((t ,(list :foreground gruber-shrews-fg
                         :background gruber-shrews-bg))))
+   `(error  ((t (:foreground ,gruber-shrews-red+1))))
+   
    `(fringe ((t ,(list :background gruber-shrews-bg-1
                        :foreground gruber-shrews-bg+2))))
    `(link ((t (:foreground ,gruber-shrews-niagara :underline t))))
    `(link-visited ((t (:foreground ,gruber-shrews-wisteria :underline t))))
    `(match ((t (:background ,gruber-shrews-bg+3))))
    `(shadow ((t (:foreground ,gruber-shrews-bg+3))))
-   `(minibuffer-prompt ((t (:foreground ,gruber-shrews-wisteria))))
+   `(minibuffer-prompt ((t (:foreground ,gruber-shrews-topaz-1))))
    `(region ((t (:background ,gruber-shrews-bg+3 :foreground nil))))
    `(secondary-selection ((t ,(list :background gruber-shrews-quartz ;;bg+3
                                     :foreground nil))))
-   `(trailing-whitespace ((t ,(list :foreground gruber-shrews-black
-                                    :background gruber-shrews-red))))
    `(tooltip ((t ,(list :background gruber-shrews-bg+3
                         :foreground gruber-shrews-white))))
 
@@ -319,22 +321,28 @@
                                     :background gruber-shrews-bg))))
    `(magit-blame-heading ((t ,(list :background gruber-shrews-bg+1
                                     :foreground gruber-shrews-fg))))
-
    ;; Message
    `(message-header-name ((t (:foreground ,gruber-shrews-green))))
 
    ;; markdown-mode
    `(markdown-blockquote-face  ((t (:inherit 'normal))))
    `(markdown-bold-face        ((t (:inherit 'bold))))
-   `(markdown-header-face      ((t (:foreground "#4B919E"       :height 1.2))))
+   `(markdown-header-face      ((t (:foreground ,gruber-shrews-brown :height 1.2))))
    `(markdown-italic-face      ((t (:slant oblique :underline t :height 1.1))))
    `(markdown-markup-face      ((t (:foreground "#569034"       :height 0.9))))
    `(markdown-pre-face         ((t (:foreground ,gruber-shrews-coffee))))
 
+   ;; `(org-level-1           ((t (:foreground "#CC8C3C"  :height 1.3 :family "Menlo"))))
+   ;; `(org-level-2           ((t (:foreground "#F7BA00"  :height 1.3 :family "Iosevka"))))
+   ;; `(org-level-3           ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo")))) ;; :weight bold
+   ;; `(org-level-4           ((t (:foreground "#96A6C8"  :height 1.2 :family "Iosevka"))))
+   ;; `(org-level-5           ((t (:foreground "#569034"  :height 1.1 :family "Menlo"))))
+   ;; `(org-level-6           ((t (:foreground "#87CF70"  :height 1.1 :family "Iosveka"))))
+
    ;; Marginalia
    `(marginalia-documentation ((t (:foreground ,gruber-shrews-wisteria))))
 
-   ;; Mode Line
+   ;; Mode-line
    `(mode-line           ((t ,(list :background gruber-shrews-bg+1
                                     :foreground gruber-shrews-fg+2))))
    `(mode-line-buffer-id ((t ,(list :background gruber-shrews-bg+1
@@ -344,40 +352,46 @@
 
    ;; keycast-mode
    `(keycast-key      ((t (:background "#002244" :foreground "#CC8C3C"
-	                   :weight bold           :box (:line-width -1 :style released-button)))))
+                           :weight bold           :box (:line-width -1 :style released-button)))))
    `(keycast-command  ((t (:foreground "#CC8C3C"  :box (:line-width -1 :style released-button)))))
    
    ;; Neo Dir
    `(neo-dir-link-face ((t (:foreground ,gruber-shrews-niagara))))
 
    ;; Org Mode
-   `(org-agenda-structure ((t (:foreground ,gruber-shrews-niagara))))
-   `(org-column ((t (:background ,gruber-shrews-bg-1))))
-   `(org-column-title ((t (:background ,gruber-shrews-bg-1 :underline t :weight bold))))
-   `(org-done ((t (:foreground ,gruber-shrews-green))))
-   `(org-todo ((t (:foreground ,gruber-shrews-red-1))))
+   `(org-level-1           ((t (:foreground "#CC8C3C"  :height 1.3 :family "Menlo"))))
+   `(org-level-2           ((t (:foreground "#F7BA00"  :height 1.3 :family "Iosevka"))))
+   `(org-level-3           ((t (:foreground "#4B919E"  :height 1.2 :family "Menlo")))) ;; :weight bold
+   `(org-level-4           ((t (:foreground "#96A6C8"  :height 1.2 :family "Iosevka"))))
+   `(org-level-5           ((t (:foreground "#569034"  :height 1.1 :family "Menlo"))))
+   `(org-level-6           ((t (:foreground "#87CF70"  :height 1.1 :family "Iosveka"))))
+   `(org-special-keyword   ((t (:foreground ,gruber-shrews-red-1))))
+   `(org-agenda-structure  ((t (:foreground ,gruber-shrews-niagara))))
+   `(org-column            ((t (:background ,gruber-shrews-bg-1))))
+   `(org-column-title      ((t (:background ,gruber-shrews-bg-1 :underline t :weight bold))))
+   `(org-done              ((t (:foreground ,gruber-shrews-green))))
+   `(org-todo              ((t (:foreground ,gruber-shrews-red-1))))
    `(org-upcoming-deadline ((t (:foreground ,gruber-shrews-yellow))))
-   
- `(org-block ((t (:background ,gruber-shrews-bg-2 :foreground ,gruber-shrews-niagara))))
-   
+   `(org-block             ((t (:background ,gruber-shrews-bg-2 :foreground ,gruber-shrews-niagara))))
 
    
+   
 
-   ;; Search
-   `(isearch ((t ,(list :foreground gruber-shrews-black
-                        :background gruber-shrews-fg+2))))
+   ;; Search green goldenrod burlywood wank rosy brown 
+   `(isearch      ((t ,(list :foreground gruber-shrews-black
+                             :background gruber-shrews-fg+2)))) ;; :background "#87CF70"
    `(isearch-fail ((t ,(list :foreground gruber-shrews-black
-                             :background gruber-shrews-red))))
+                             :background gruber-shrews-red+1))))
    `(isearch-lazy-highlight-face ((t ,(list
                                        :foreground gruber-shrews-fg+1
-                                       :background gruber-shrews-niagara-1))))
+                                       :background gruber-shrews-green))))
 
    ;; Sh
    `(sh-quoted-exec ((t (:foreground ,gruber-shrews-red+1))))
 
    ;; Show Paren
-   `(show-paren-match-face ((t (:background ,gruber-shrews-coffee-1))))
-   `(show-paren-mismatch-face ((t (:background ,gruber-shrews-red-1))))
+   `(show-paren-match    ((t (:background ,gruber-shrews-topaz  :foreground ,gruber-shrews-black))))
+   `(show-paren-mismatch ((t (:background ,gruber-shrews-red+1  :foreground ,gruber-shrews-black))))
 
    ;; Slime
    `(slime-repl-inputed-output-face ((t (:foreground ,gruber-shrews-red))))
@@ -391,12 +405,15 @@
    `(speedbar-file-face ((t (:foreground ,gruber-shrews-fg))))
    `(speedbar-highlight-face ((t (:background ,gruber-shrews-bg+1))))
    `(speedbar-selected-face ((t (:foreground ,gruber-shrews-red))))
-   `(speedbar-tag-face ((t (:foreground ,gruber-shrews-yellow))))
+   `(speedbar-tag-face ((t (:foreground ,gruber-shrews-yellow))))      
 
    ;; Which Function
    `(which-func ((t (:foreground ,gruber-shrews-wisteria))))
 
    ;; Whitespace
+   ;; (face tabs spaces trailing lines space-before-tab newline indentation empty space-after-tab space-mark tab-mark newline-mark missing-newline-at-eof)
+      `(trailing-whitespace ((t ,(list :foreground gruber-shrews-black
+                                    :background gruber-shrews-red))))
    `(whitespace-space ((t ,(list :background gruber-shrews-bg
                                  :foreground gruber-shrews-bg+1))))
    `(whitespace-tab ((t ,(list :background gruber-shrews-bg
@@ -419,32 +436,32 @@
                                             :foreground gruber-shrews-brown))))
 
    ;; tab-bar
-   `(tab-bar ((t (:background ,gruber-shrews-bg+1 :foreground ,gruber-shrews-coffee-1))))
-   `(tab-bar-tab ((t (:background nil :foreground ,gruber-shrews-yellow :weight bold))))
+   `(tab-bar              ((t (:background ,gruber-shrews-bg+1 :foreground ,gruber-shrews-coffee-1))))
+   `(tab-bar-tab           ((t (:background nil :foreground ,gruber-shrews-yellow :weight bold))))
    `(tab-bar-tab-inactive ((t (:background nil))))
 
    ;; vterm / ansi-term
-   `(term-color-black ((t (:foreground ,gruber-shrews-bg+3 :background ,gruber-shrews-coffee-1))))
-   `(term-color-red ((t (:foreground ,gruber-shrews-red-1 :background ,gruber-shrews-red-1))))
-   `(term-color-green ((t (:foreground ,gruber-shrews-green :background ,gruber-shrews-green))))
-   `(term-color-blue ((t (:foreground ,gruber-shrews-niagara :background ,gruber-shrews-niagara))))
-   `(term-color-yellow ((t (:foreground ,gruber-shrews-yellow :background ,gruber-shrews-yellow))))
+   `(term-color-black   ((t (:foreground ,gruber-shrews-bg+3     :background ,gruber-shrews-coffee-1))))
+   `(term-color-red     ((t (:foreground ,gruber-shrews-red-1    :background ,gruber-shrews-red-1))))
+   `(term-color-green   ((t (:foreground ,gruber-shrews-green    :background ,gruber-shrews-green))))
+   `(term-color-blue    ((t (:foreground ,gruber-shrews-niagara  :background ,gruber-shrews-niagara))))
+   `(term-color-yellow  ((t (:foreground ,gruber-shrews-yellow   :background ,gruber-shrews-yellow))))
    `(term-color-magenta ((t (:foreground ,gruber-shrews-wisteria :background ,gruber-shrews-wisteria))))
-   `(term-color-cyan ((t (:foreground ,gruber-shrews-quartz :background ,gruber-shrews-quartz))))
-   `(term-color-white ((t (:foreground ,gruber-shrews-fg :background ,gruber-shrews-white))))
+   `(term-color-cyan    ((t (:foreground ,gruber-shrews-quartz   :background ,gruber-shrews-quartz))))
+   `(term-color-white   ((t (:foreground ,gruber-shrews-fg       :background ,gruber-shrews-white))))
 
    ;;;;; company-mode
-   `(company-tooltip ((t (:foreground ,gruber-shrews-fg :background ,gruber-shrews-bg+1))))
+   `(company-tooltip            ((t (:foreground ,gruber-shrews-fg :background ,gruber-shrews-bg+1))))
    `(company-tooltip-annotation ((t (:foreground ,gruber-shrews-brown :background ,gruber-shrews-bg+1))))
    `(company-tooltip-annotation-selection ((t (:foreground ,gruber-shrews-brown :background ,gruber-shrews-bg-1))))
-   `(company-tooltip-selection ((t (:foreground ,gruber-shrews-fg :background ,gruber-shrews-bg-1))))
-   `(company-tooltip-mouse ((t (:background ,gruber-shrews-bg-1))))
-   `(company-tooltip-common ((t (:foreground ,gruber-shrews-green))))
+   `(company-tooltip-selection  ((t (:foreground ,gruber-shrews-fg :background ,gruber-shrews-bg-1))))
+   `(company-tooltip-mouse      ((t (:background ,gruber-shrews-bg-1))))
+   `(company-tooltip-common     ((t (:foreground ,gruber-shrews-green))))
    `(company-tooltip-common-selection ((t (:foreground ,gruber-shrews-green))))
-   `(company-scrollbar-fg ((t (:background ,gruber-shrews-bg-1))))
-   `(company-scrollbar-bg ((t (:background ,gruber-shrews-bg+2))))
-   `(company-preview ((t (:background ,gruber-shrews-green))))
-   `(company-preview-common ((t (:foreground ,gruber-shrews-green :background ,gruber-shrews-bg-1))))
+   `(company-scrollbar-fg       ((t (:background ,gruber-shrews-bg-1))))
+   `(company-scrollbar-bg       ((t (:background ,gruber-shrews-bg+2))))
+   `(company-preview            ((t (:background ,gruber-shrews-green))))
+   `(company-preview-common     ((t (:foreground ,gruber-shrews-green :background ,gruber-shrews-bg-1))))
 
    ;;;;; Proof General
    `(proof-locked-face ((t (:background ,gruber-shrews-niagara-2))))
