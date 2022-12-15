@@ -45,7 +45,22 @@ Je suis un Dummkopf agus siempre me olvido, so…
 | C-c C-w =        |   | ew/resize-window                                            |
 | M-g              |   | ibuffer-jump-to-buffer..jump from ibuffer listing (C-x C-b) |
 
+- C-c M-d   -- custom copy line, insert below
+  - C-a C-SPC C-e C-w C-y -- does same thing Emacs-q
+- M-n/M-p   -- mikeyp's smartscan -- search back/forward for symbol at point
+
 ** Standard
+- M-h       -- Emacs-q mark-paragraph / org-mark-element
+- C-w         -- in isearch expands search term to thing at that match
+- C-x C-j     -- Jump to this files' current directory
+- M-y         -- Cycle last paste through previous kills
+- C-x C-y     -- Choose what to paste from previous kills
+- C-@         -- Mark stuff quickly. Press multiple times
+- C-x C-i     -- Go to symbol
+- C-v         -- scroll-up
+- M-v         -- scroll-down
+- C-M-        -- scroll-other-window
+- M-- C-M-v   -- scroll-other-window with negative argument (C-- and C-M--) reverses
 
 | C-x C-w           |   | write file (save as)                               |
 | C-x C-=           |   | inc font size in window                            |
@@ -195,7 +210,10 @@ Show hex (and other) colours in buffer
 *autothemer*   -- https://github.com/jasonm23/autothemer
 Autothemer provides autothemer-deftheme a macro wrapper for deftheme and custom-theme-set-faces which creates a custom color theme.
 
-- https://www.gnu.org/software/emacs/manual/html_node/elisp/Face-Attributes.html
+- <https://www.gnu.org/software/emacs/manual/html_node/elisp/Face-Attributes.html>
+- <https://notes.neeasade.net/color-spaces.html>
+
+  
 
 *** TODO: fold into gruber-shrews-theme.el
 
