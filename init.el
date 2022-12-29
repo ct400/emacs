@@ -15,19 +15,16 @@
 ;;   - check this from time to time: yhttps://github.com/jwiegley/use-package-examples
 ;; ---
 
+(occur "^;+ [0-9]+ ")
+
+
 ;;; here be dragons
 (server-start)
 (require 'org-protocol)
 (add-to-list 'load-path "~/.config/emacs/org-protocol/")
 
 
-(setq initial-scratch-message ";;  SCRATCH! Ah-ha!\n;; Buffer of the Universe\n;; (~/.config/emacs/init.el) \n\n\n")
-
-(set-frame-parameter (selected-frame) 'alpha-background 0.98)  ;; new in Emacs 29
-
-(setq split-window-horizontally 1)
-
-;;;;;;;;;;;;;;;;; PATHS ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 01 PATHS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -60,7 +57,7 @@
 ;;
 ;;;;;;;;;;;;;;;;; END PATHS ;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;; PACKAGE MANAGEMENT ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 02 PACKAGE MANAGEMENT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;;; straight is in early-init.el
@@ -87,14 +84,14 @@
 ;;;;;;;;;;;;;;;;; END PACKAGE MANAGEMENT ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; KEYBINDS ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 03 KEYBINDS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
 (load-file "~/.config/emacs/sjy2-lisp/sjy2-keybinds.el")
 
 ;; this lets us have long lines go off the side of the screen instead of hosing up the ascii art
-(global-set-key "\C-x\C-l"      'toggle-truncate-lines)
+(global-set-key "\C-x\C-l"      'toggle-truncate-lines) ;; was downcase-region
 (global-set-key (kbd "C-S-R")   'rename-file)
 (define-key global-map "\M-Q"   'unfill-paragraph)
 (global-set-key (kbd"C-S-z")    'undo-redo)
@@ -103,6 +100,7 @@
 (global-set-key (kbd "C-x \\")  #'align-regexp)  ;; align code
 (global-set-key (kbd "C-c C-d") 'duplicate-dwim) ;; Emacs-29 duplicate line, region whatever
 ;;(bind-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y") ; duplicate whole line
+(global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 (global-set-key (kbd "M-r") 'er/expand-region) ;;
 (global-set-key (kbd "C-c C-w w") #'ew/resize-window)
@@ -121,10 +119,13 @@
 ;;
 ;;;;;;;;;;;;;;;;; END KEYBINDS ;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;; SANE SETTINGS ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 04 SANE SETTINGS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
+(setq initial-scratch-message ";;  SCRATCH! Ah-ha!\n;; Buffer of the Universe\n;; (~/.config/emacs/init.el) \n\n\n")
+(set-frame-parameter (selected-frame) 'alpha-background 0.98)  ;; new in Emacs 29
+(setq split-window-horizontally 1)
 ;; (toggle-frame-maximized)            ;; ENHANCE!!
 (pixel-scroll-precision-mode)       ;; new in 29.x smooth scrolling
 (setq load-prefer-newer t)          ;; load newest byte code
@@ -146,6 +147,7 @@
 (line-number-mode              1)
 (delete-selection-mode         1)    ;; typing replaces active selection
 (savehist-mode                 1)    ;; remember last minibuffer commands
+;;(setq savehist-file "~/.config/emacs/history") ;; this is default
 (fido-vertical-mode           -1)    ;; TODO: vertico?
 (winner-mode                   1)    ;; undo/redo windows config
 (desktop-save-mode             1)    ;; remember last opened files
@@ -191,18 +193,23 @@
                                          try-complete-lisp-symbol-partially
                                          try-complete-lisp-symbol))
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
+
+;; Buffers
+
+
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END SANE SETTINGS ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 05 EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
-;; If you expand too far, you can contract the region by pressing - (minus key), or by prefixing the shortcut you defined with a negative argument: C--
+;; If you expand too far, you can contract the region by pressing - (minus key),
+;; or by prefixing the shortcut you defined with a negative argument: C--
 (use-package expand-region
-  :ensure t)
+  :ensure t) 
 ;; keybound abve
 ;; (global-set-key (kbd "M-r") 'er/expand-region)
 
@@ -210,8 +217,40 @@
 ;;
 ;;;;;;;;;;;;;;;;; END EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;; 05.5 BUFFER PLACEMENT ;;;;;;;;;;;;;;;;;
+;;
+;;
+(add-to-list 'display-buffer-alist
+ '("\\*e?shell\\*"
+   (display-buffer-in-side-window)
+   (side . bottom)
+   (slot . -1) ;; -1 == L  0 == Mid 1 == R
+   (window-height . 0.33) ;; take 2/3 on bottom left
+   (window-parameters
+    (no-delete-other-windows . nil))))
 
-;;;;;;;;;;;;;;;;; NAVIGATION ;;;;;;;;;;;;;;;;;
+(add-to-list 'display-buffer-alist
+ '("\\*\\(Backtrace\\|Compile-log\\|Messages\\|Warnings\\)\\*"
+   (display-buffer-in-side-window)
+   (side . bottom)
+   (slot . 0)
+   (window-height . 0.33)
+   (window-parameters
+     (no-delete-other-windows . nil))))
+
+(add-to-list 'display-buffer-alist
+ '("\\*\\([Hh]elp\\|Command History\\|command-log\\)\\*"
+   (display-buffer-in-side-window)
+   (side . right)
+   (slot . 0)
+   (window-width . 100)
+   (window-parameters
+     (no-delete-other-windows . nil))))
+;;
+;;
+;;;;;;;;;;;;;;;;; END BUFFER PLACEMENT ;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;; 06 NAVIGATION ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;; (use-package evil
@@ -266,7 +305,11 @@
 ;;
 ;;;;;;;;;;;;;;;;; END NAVIGATION ;;;;;;;;;;;;;;;;;
 
-;; dired and magit
+
+;;;;;;;;;;;;;;;;; 07 DIRED AND MAGIT ;;;;;;;;;;;;;;;;;
+;;
+;;
+
 (setq dired-listing-switches "-laGh --group-directories-first")
 (global-set-key (kbd "C-x C-j") 'dired-jump)
 (define-key dired-mode-map (kbd "b")  'dired-up-directory)  ;; mirrors f dired-find-file
@@ -316,9 +359,11 @@
    '(git-gutter-fr:deleted   ((t (:foreground "#F15952" :background "#F15952"))))
    '(git-gutter-fr:modified  ((t (:foreground "#4B919E" :background "#4B919E"))))
    '(git-gutter-fr:added     ((t (:foreground "#87CF70" :background "#87CF70")))))
+;;
+;;
+;;;;;;;;;;;;;;;;; END DIRED AND MAGIT ;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;; COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 08 COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;; Marginalia is focused on annotations only.
@@ -387,19 +432,11 @@
                    "  ")
                  cand))))
 
-(use-package savehist
-  :init
-  (savehist-mode))
+;; TODOL delete)-- this is built-in
+;; (use-package savehist
+;;   :init
+;;   (savehist-mode))
 
-;; ;; TBH, I think I prefer orderless
-;; (use-package prescient
-;;   ;; :custom
-;;   ;; ((prescient-save-file (expand-file-name "tmp/prescient-save.el"
-;;   :config
-;;   (setq prescient-filter-method '(literal regexp fuzzy))
-;;   (prescient-sort-length-enable nil) ;; sort only by freq and recency
-;;   (prescient-save-file (expand-file-name "tmp/prescient-save.el"))
-;;   (prescient-persist-mode 1))
 
 
 (use-package embark
@@ -515,7 +552,7 @@
 ;;
 ;;;;;;;;;;;;;;;;; END COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;; THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 09 APPREANNCE: THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -604,10 +641,10 @@
 
 ;;
 ;;
-;;;;;;;;;;;;;;;;; END THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; END APPEARANCE: THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; HELP AND INFO ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 10 HELP AND INFO ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -680,7 +717,7 @@
 ;;;;;;;;;;;;;;;;; END HELP AND INFO ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 11 EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;; I am a savage, not using rectangular actions and, ofc, macros
@@ -743,7 +780,7 @@
 ;;;;;;;;;;;;;;;;;  END EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;  LANGS ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 12  LANGS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -886,7 +923,7 @@
 ;;;;;;;;;;;;;;;;;  END LANGS ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; RANDO AND CUSTOM CODE ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 13 RANDO AND CUSTOM CODE ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -1073,9 +1110,11 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   (let ((fill-column (point-max)))
 ;; 	(fill-paragraph nil)))
 ;; (define-key global-map "\M-Q" 'sjy2/unfill-paragraph)
+;;
+;;
+;;;;;;;;;;;;;;;;; END RANDO AND CUSTOM CODE ;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;; WRITING AND SHIT ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 14  WRITING AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -1102,7 +1141,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;;;;;;;;;;;;;;; END WRITING AND SHIT ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; ORGMODE ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 15 ORGMODE ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;;; paths
@@ -1234,7 +1273,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;
 ;;;;;;;;;;;;;;;;; END ORGMODE ;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;; MAIL ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 16 MAIL ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;;; mu4e
@@ -1247,7 +1286,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;;;;;;;;;;;;;;; END MAIL ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; SOCIAL AND GOOFING ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 17 SOCIAL AND GOOFING ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 ;;; IRC Client
@@ -1314,7 +1353,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;;;;;;;;;;;;;;; END SOCIAL AND GOOFING ;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;; XXXX ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 00 XXXX ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
