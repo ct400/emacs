@@ -1,3 +1,4 @@
+;; -*- mode: emacs-lisp -*-
 ;; ---
 ;; title:    "Simplified emacs init (again)"
 ;; author:   salopst
@@ -16,33 +17,40 @@
 
 ;;; here be dragons
 (server-start)
-(add-to-list 'load-path "~/.config/emacs/org-protocol/")
 (require 'org-protocol)
+(add-to-list 'load-path "~/.config/emacs/org-protocol/")
+
 
 (setq initial-scratch-message ";;  SCRATCH! Ah-ha!\n;; Buffer of the Universe\n;; (~/.config/emacs/init.el) \n\n\n")
 
-(set-frame-parameter (selected-frame) 'alpha-background 0.92)  ;; new in Emacs 29
+(set-frame-parameter (selected-frame) 'alpha-background 0.98)  ;; new in Emacs 29
 
 (setq split-window-horizontally 1)
 
 ;;;;;;;;;;;;;;;;; PATHS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-;; (setq user-emacs-directory "~/.config/emacs")
 
+(setq user-emacs-directory "~/.config/emacs/")
 (add-to-list 'load-path (expand-file-name "sjy2-lisp" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name "git-cloned-lisp" user-emacs-directory))
+;; refresh random web-gotten git with
+;; ~/bin/git-refresh.sh
+(let ((default-directory  "~/.config/emacs/git-cloned-lisp/"))
+  (normal-top-level-add-to-load-path '("."))
+  (normal-top-level-add-subdirs-to-load-path))
+
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-;; after `cp  /usr/share/emacs/site-lisp/mu4e/* ~/.config/emacs/mu4e/`
+;; after `sudo cp  /usr/share/emacs/site-lisp/mu4e/* ~/.config/emacs/mu4e/`
 (add-to-list 'load-path (expand-file-name "mu4e" user-emacs-directory))
 ;; local themes
-(add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
-(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/gruvbox")
+(add-to-list 'custom-theme-load-path (expand-file-name "themes" user-emacs-directory))
 
 ;; No custom-set-variables in init.el
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(setq undo-undtree-history-directory-alist '("~/.config/emacs/tmp/undo-tree"))
-(setq backup-directory-alist `((".*" . ,user-emacs-directory)))
+(setq undo-undtree-history-directory-alist '("~/.config/emacs/tmp/undo-tree/"))
+(setq backup-directory-alist '(("." . "~/.config/emacs/tmp/backups/")))
+;; (setq backup-directory-alist '((expand-file-name "tmp/backups" user-emacs-directory)))
+
 (setq desktop-save-path '("~/.config/emacs/tmp"))    ;; path to desktop saves
 (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
   auto-save-file-name-transforms 
@@ -82,30 +90,32 @@
 ;;;;;;;;;;;;;;;;; KEYBINDS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
+
 (load-file "~/.config/emacs/sjy2-lisp/sjy2-keybinds.el")
 
-;; replace buffer-menu with ibuffer
-(global-set-key (kbd "C-x C-b") #'ibuffer)
+;; this lets us have long lines go off the side of the screen instead of hosing up the ascii art
+(global-set-key "\C-x\C-l"      'toggle-truncate-lines)
+(global-set-key (kbd "C-S-R")   'rename-file)
+(define-key global-map "\M-Q"   'unfill-paragraph)
+(global-set-key (kbd"C-S-z")    'undo-redo)
+(global-set-key (kbd "C-x C-b") #'ibuffer)       ;; replace buffer-menu with ibuffer
+(global-set-key (kbd "C-x p")   #'proced)        ;; Start proced like dired
+(global-set-key (kbd "C-x \\")  #'align-regexp)  ;; align code
+(global-set-key (kbd "C-c C-d") 'duplicate-dwim) ;; Emacs-29 duplicate line, region whatever
+;;(bind-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y") ; duplicate whole line
 
-;; Start proced in a similar manner to dired
-(global-set-key (kbd "C-x p") #'proced)
-
-;; align code
-(global-set-key (kbd "C-x \\") #'align-regexp)
-
-
-  ;; this lets us have long lines go off the side of the screen instead of hosing up the ascii art
-(global-set-key "\C-x\C-l" 'toggle-truncate-lines)
-(global-set-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y")	; Duplicate a whole line
-(global-set-key (kbd "C-S-R") 'rename-file)
-(bind-key "\C-c\C-d" "\C-a\C- \C-n\M-w\C-y") ; duplicate whole line
-(define-key global-map "\M-Q" 'unfill-paragraph)
+(global-set-key (kbd "M-r") 'er/expand-region) ;;
+(global-set-key (kbd "C-c C-w w") #'ew/resize-window)
 
 ;;; faster M-xing
-
 (defalias 'jos 'just-one-space)
-(defalias 'job 'delete-blank-lines) ;; C-x C-o in  Emacs-q
-
+(defalias 'job 'delete-blank-lines) ;; C-x C-o in Emacs-q
+(defalias 'ur  'unfill-region)
+(defalias 'up  'unfill-paragraph)   ;; cf to M-q -- fill-paragraph in Emacs-q
+(defalias 'ut  'unfill-toggle)
+(defalias 'kc  'keycast-mode-line-mode)
+(defalias 'ka  'sjy2/kill-all)
+(defalias 'du  'duplicate-dwim)
 
 ;;
 ;;
@@ -115,7 +125,7 @@
 ;;
 ;;
 
-;;(toggle-frame-maximized)            ;; ENHANCE!!
+;; (toggle-frame-maximized)            ;; ENHANCE!!
 (pixel-scroll-precision-mode)       ;; new in 29.x smooth scrolling
 (setq load-prefer-newer t)          ;; load newest byte code
 (setq enable-local-variables :safe) ;; YOLO
@@ -131,7 +141,7 @@
 (global-auto-revert-mode       1)    ;; auto-update when on-disk-change
 (global-hl-line-mode           1)    ;; Highlight line at point.
 (visual-line-mode              t)    ;; Treat each display line as if
-;;(column-number-mode            1)    ;; columns and rows in mode line
+(column-number-mode            1)    ;; columns and rows in mode line
 (setq column-number-mode       t)    ;; columns and rows in mode line
 (line-number-mode              1)
 (delete-selection-mode         1)    ;; typing replaces active selection
@@ -141,6 +151,7 @@
 (desktop-save-mode             1)    ;; remember last opened files
 (desktop-read)  
 (setq use-short-answers        1)    ;; as of Emacs 28.1
+(setq next-line-add-newlines   t)    ;; C-n inserts \n at buffer end.
 (setq visible-bell             1)    ;; DANGER WILL ROBINSON! (Audible if nil)
 (setq calendar-style        'iso)    ;; 8601 Gang!
 (setq calendar-week-start-day  1)        ;; Week starts Mon (default=0, Sun)
@@ -156,7 +167,8 @@
         (lambda (fg) (set-face-foreground 'mode-line fg))
         orig-fg))))
 
-(setq-default display-line-numbers-type  'absolute)  ;; 'relative   
+;; (setq-default display-line-numbers-type  'absolute)
+(setq-default display-line-numbers-type  'relative)
 (global-display-line-numbers-mode                 )
 
 ;; Recent Files
@@ -167,6 +179,7 @@
 (global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 ;; hippie expand is dabbrev expand on steroids
+;; TODO: get Corfu in on this action?
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev
                                          try-expand-dabbrev-all-buffers
                                          try-expand-dabbrev-from-kill
@@ -183,9 +196,37 @@
 ;;;;;;;;;;;;;;;;; END SANE SETTINGS ;;;;;;;;;;;;;;;;;
 
 
+;;;;;;;;;;;;;;;;; EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
+;;
+;;
+
+;; If you expand too far, you can contract the region by pressing - (minus key), or by prefixing the shortcut you defined with a negative argument: C--
+(use-package expand-region
+  :ensure t)
+;; keybound abve
+;; (global-set-key (kbd "M-r") 'er/expand-region)
+
+;;
+;;
+;;;;;;;;;;;;;;;;; END EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
+
+
 ;;;;;;;;;;;;;;;;; NAVIGATION ;;;;;;;;;;;;;;;;;
 ;;
 ;;
+;; (use-package evil
+;; 	:ensure t
+;; 	:config
+;; 	(evil-mode)
+;; 	(evil-set-undo-system 'undo-tree))
+
+
+;; https://github.com/mickeynp/smartscan
+;; M-n and M-p move between symbols and type M-' to replace all symbols in the buffer matching the one under point, and C-u M-' to replace symbols in your current defun only (as used by narrow-to-defun.)
+
+;; git clone git@github.com:mickeynp/smart-scan.git ~/.config/emacs/git-cloned-lisp/smart-scan
+(require 'smartscan)
+(smartscan-mode 1)
 
 (use-package avy
   :ensure t
@@ -226,29 +267,27 @@
 ;;;;;;;;;;;;;;;;; END NAVIGATION ;;;;;;;;;;;;;;;;;
 
 ;; dired and magit
-(use-package dired
-  :ensure nil
-  :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump))
-  :custom ((dired-listing-switches "-laGh --group-directories-first")))
-(use-package dired-single)
+(setq dired-listing-switches "-laGh --group-directories-first")
+(global-set-key (kbd "C-x C-j") 'dired-jump)
+(define-key dired-mode-map (kbd "b")  'dired-up-directory)  ;; mirrors f dired-find-file
+(define-key dired-mode-map (kbd "e" ) 'dired-create-empty-file)
+(add-hook 'dired-mode-hook 'dired-git-mode)
 
 (use-package all-the-icons-dired
   :defer
   :hook (dired-mode . all-the-icons-dired-mode))
 
-;; TODO: buffer consolidation
-;; https://github.com/crocket/dired-single
+;; ;; no spawn new buffer for new directory visited;
+(require 'dired-single) ;; in  $GIT_CLONED_LISP
 
-;;TODO: KEYS
-;; set a ket for M-x recentf -- to open recent files. Or not. C-x b is good enough?
-;; (define-key dired-mode-map (kbd "h")  'dired-up-directory)      ;; this is usu help
-;; (define-key dired-mode-map (kbd "c" ) 'dired-create-empty-file) ;; TODO: this mofo
+(use-package dired-narrow
+   :ensure t)
 
-;; (use-package dired-hide-dotfiles
-;;   :defer
-;;   :hook (dired-mode . dired-hide-dotfiles-mode)
-;;   :config)
+(use-package dired-git
+  :ensure t
+  :hook
+  (dired-mode . dired-git-mode))
+
 
 ;;; VERSION CONTROL
 (use-package magit
@@ -272,13 +311,12 @@
   (define-fringe-bitmap 'git-gutter-fr:added     [140]    nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:modified  [140]    nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted   [140]    nil nil '(center repeated)))
-
+;; keep with git-gutter-fringe package
   (custom-set-faces
    '(git-gutter-fr:deleted   ((t (:foreground "#F15952" :background "#F15952"))))
    '(git-gutter-fr:modified  ((t (:foreground "#4B919E" :background "#4B919E"))))
-   '(git-gutter-fr:added     ((t (:foreground "#87CF70" :background "#87CF70"))))
- )
-   
+   '(git-gutter-fr:added     ((t (:foreground "#87CF70" :background "#87CF70")))))
+
 
 ;;;;;;;;;;;;;;;;; COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
@@ -321,18 +359,18 @@
     (when (vertico-quick-jump)
       (embark-act arg)))
 
-  (defun fucking-kill-minibuffer()
+  (defun sjy2/fucking-kill-minibuffer()
     "Fucking kill the fucking mini-fucking-buffer"
     (interactive)
-    (abort-recursive-edit)
+    (abort-recursive-edit) ;; C-] and C-x X a in Emacs-q
     (minibuffer-keyboard-quit)
     (exit-minibuffer))
   
   :bind (:map vertico-map
         ("\\t"     . vertico-insert)
         ("C-c C-q" . vertico-exit)
-  	("C-c C-j"  . vertico-quick-jump)
-  	("<ESC>"   . fucking-kill-minibuffer)
+  	("C-c C-j" . vertico-quick-jump)
+  	("<ESC>"   . sjy2/fucking-kill-minibuffer)
   	:map minibuffer-local-map
   	("M-h"     . backward-kill-word))
   :init
@@ -367,8 +405,8 @@
 (use-package embark
   :ensure t
  ;; :straight t
-  :bind (("C-."   . embark-act)  )       ;; pick some comfortable binding
-        ;;  ("C-;"   . embark-dwim)        ;; good alternative: M-.
+  :bind (("C-."   . embark-act)
+        ("M-."   . embark-dwim))      ;; good alternative: C-;
         ;;  ("C-h B" . embark-bindings)    ;; alt for 'describe-bindings'
         ;;  :map minibuffer-local-map
         ;;  ("C-."   . embark-act))
@@ -388,6 +426,7 @@
   :ensure t
   :init
   ;; Use Consult to select xref locations with preview
+  ;; "orig" ==  overrides Emacs-q defaults, so no biggie
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   :bind (
@@ -395,7 +434,6 @@
          ("C-x M-;" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x b"   . consult-buffer)              ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ;; ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
          ;; Custom M-# bindings for fast register access
          ("M-#"   . consult-register-load)
          ("M-'"   . consult-register-store)        ;; orig. abbrev-prefix-mark (unrelated)
@@ -406,7 +444,7 @@
          ;; M-g bindings (goto-map)
          ("M-g e"   . consult-compile-error)
          ("M-g c"   . consult-flycheck)
-         ("M-g l"   . consult-goto-line)           ;; orig. goto-line -- simple go to line #
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o"   . consult-outline)             ;; Alternative: consult-org-heading
          ("M-g m"   . consult-mark)
          ("M-g k"   . consult-global-mark)
@@ -480,15 +518,20 @@
 ;;;;;;;;;;;;;;;;; THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-;; TODO: doom-one??
-;; monotropic, modus themes --- Still looking for a nice light for prose.
-;; material theme is a nice dark one if I get bored.
+
 (setq custom-safe-themes t)
+
+(defadvice load-theme (before clear-previous-themes activate)
+  "Clear existing theme settings instead of layering them"
+  (mapc #'disable-theme custom-enabled-themes))
+
 ;; (load-theme 'discreet t)
+(load-theme 'glaukopis t)
 ;; (load-theme 'gruber-darker t)
-  (load-theme 'gruber-shrews t)
-;; (load-theme 'popos t)
+ ;; (load-theme 'gruber-shrews t)
 ;; (load-theme 'gruvbox-dark-soft t) ;; no worky
+;; (load-theme 'material t)
+;; (load-theme 'popos t);; more like eire that pop-- takes too much from Zenburn. Should start from scratch.
 ;; (load-theme 'tsdh-light t)
 ;; (load-theme 'zenburn t)
 ;; (set-face-attribute 'region nil :background "#6A5E51" :foreground "#282828") ;; use w/ gruvbox
@@ -496,8 +539,8 @@
 
 ;;;;; font and faces
 ;; (set-face-attribute 'default nil :font "Cousine-13")
-(set-face-attribute 'default nil :font "Firacode-12")
-;; (set-face-attribute 'default nil :font "Hack Nerd Font-12")
+;; (set-face-attribute 'default nil :font "Firacode-12")
+(set-face-attribute 'default nil :font "Hack Nerd Font-12")
 ;; (set-face-attribute 'default nil :font "Inconsolata-12")
 ;; (set-face-attribute 'default nil :font "Iosevka Comfy Motion 13")
 ;; (set-face-attribute 'default nil :font "Iosevka-13")
@@ -512,22 +555,26 @@
  '(set-cursor-color "#F7BA00")
  )
 
-;;; Doom-modeline -- I ndáiríre??
-;; muchos opciones
+;;;; Doom-modeline -- I ndáiríre??
 ;; (use-package doom-modeline
 ;;   :ensure t
 ;;   :hook (after-init . doom-modeline-mode)
+;;   :config
+;;   (setq doom-modeline-minor-modes t)
+;;   (setq doom-modeline-enable-word-count t)
+;;   (setq doom-modeline-indent-info t)
+;;   (setq doom-modeline-github t)
 ;;   :init
-;;   (doom-modeline-mode 1))
+;;   (doom-modeline-mode))
 
-(use-package unfill
-  :ensure t
+
 ;; M-x unfill-region
 ;; M-x unfill-paragraph
 ;; M-x unfill-toggle
-  )
+(use-package unfill
+  :ensure t)
 
-;;; PRETIFFY
+;;;; PRETIFFY
 
 ;; cutsey icons
 (use-package all-the-icons
@@ -553,7 +600,7 @@
       ("gruber-shrews-wisteria"  . "#9e95c7")
   ))
   :init
-  (rainbow-mode))
+  (rainbow-mode 1))
 
 ;;
 ;;
@@ -572,14 +619,12 @@
   :init
   (which-key-mode))
 
+;; TODO: get keycast positioned AFTER minor modes!!
 (use-package keycast
   :ensure t
   :init
-   (add-to-list 'global-mode-string '(" " keycast-mode-line-mode 'APPEND)))
-;;   (keycast-mode-line-mode))
-;; TODO: get keycast positioned AFTER minor modes!!
-
-
+   (add-to-list 'global-mode-string '(" " keycast-mode-line-mode 'APPEND))
+   (keycast-mode-line-mode))
 (setq mode-line-compact nil)
 
 ;; pure silliness
@@ -588,9 +633,9 @@
 
 (dim-major-name 'markdown-mode   " Ⓜ️")
 (dim-major-name 'org-mode        " 🦄")
-(dim-major-name 'emacs-lisp-mode " ε")
+(dim-major-name 'emacs-lisp-mode " ελ")
 (dim-major-name 'calendar-mode   " 📆")
-(dim-major-name 'inferior-emacs-lisp-mode " ε-")
+(dim-major-name 'inferior-emacs-lisp-mode " ελ-")
 (dim-major-name 'python-mode     " 🐍")
 (dim-major-name 'rust-mode       " 🦀")
 (dim-major-name 'ruby-mode       " RB") ;; no ruby emoji?
@@ -600,11 +645,11 @@
 (dim-minor-name 'rainbow-mode       " 🌈")
 (dim-minor-name 'undo-tree-mode     " 🌳")
 (dim-minor-name 'which-key-mode     " ⌨️")
-(dim-minor-name 'yas-minor-mode     " ✂️")
+(dim-minor-name 'yas-minor-mode     " ✂️" 'YAS)
 (dim-minor-name 'visual-line-mode   " ↩")
 (dim-minor-name 'auto-fill-function " ↵")
 (dim-minor-name 'view-mode          " 👀" 'view)
-(dim-minor-name 'eldoc-mode         " εd" 'eldoc)
+(dim-minor-name 'eldoc-mode         " ελd" 'eldoc)
 (dim-minor-name 'whitespace-mode    " _"  'whitespace)
 (dim-minor-name 'paredit-mode       " ()" 'paredit)
 
@@ -622,6 +667,7 @@
 (use-package helpful
   :ensure t)
 ;; TODO: ¿Por qué no hay helfpul para describe-mode?
+;; C-h a == consult-apropos
 (global-set-key (kbd "C-h c")   #'helpful-command)  ;; les interactifs
 (global-set-key (kbd "C-h f")   #'helpful-callable) ;; also inc. macros
 (global-set-key (kbd "C-h F")   #'helpful-function)
@@ -641,13 +687,12 @@
 (use-package multiple-cursors
   :ensure t)
 
-;; Do What I Mean. Both marked an unmarked regions
-(global-set-key (kbd "C-M-j")       'mc/mark-all-dw)
+(global-set-key (kbd "C-M-j")       'mc/mark-all-like-this)
+(global-set-key (kbd "C-M-/")       'mc/mark-all-in-region)
 (global-set-key (kbd "C-M-.")       'mc/mark-next-like-this) ;; THIS IS KEY !!
 (global-set-key (kbd "S-M-<down>")  'mc/mark-next-like-this) ;; VSCode
 (global-set-key (kbd "C-M-,")       'mc/mark-previous-like-this)
 (global-set-key (kbd "S-M-<up>")    'mc/mark-previous-like-this) ;; VSCode
-(global-set-key (kbd "C-M-/")       'mc/mark-all-like-this)
 
 
 (require 'emacs-surround)
@@ -681,20 +726,14 @@
   (undo-tree-visualizer-timestamps t))
 
 (use-package default-text-scale
-  ;; C+M+- and C+M+=
-  :defer 1
+  ;; C+M+- and C+M+= across all windows an
+  ;; Emacs-q C-x C-- and C-x C-= are per frame
+  :defer t
   :config
   (default-text-scale-mode))
 
 (use-package yasnippet
-  ;; :straight t
-  ;; (:type git)
   :ensure t
-  :hook ((text-mode
-          prog-mode
-          conf-mode
-          snippet-mode)
-	  . yas-minor-mode-on)
   :config
   (setq yas-snippet-dir "~/.config/emacs/snippets")
   (yas-global-mode 1))    ;; or M-x yas-reload-all
@@ -709,6 +748,7 @@
 ;;
 
 ;;; parens
+;; TODO: Pparedit/parinfer ??
  (use-package smartparens
   :config
   (smartparens-global-mode -1)
@@ -716,6 +756,11 @@
 
 (use-package yaml-mode
   :ensure t)
+
+(use-package vimrc-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
 
 (use-package markdown-mode
   ;; :straight t
@@ -753,6 +798,14 @@
    ("M-RET" . LaTeX-insert-item)
    :map TeX-source-correlate-map     
    ([C-down-mouse-1] . TeX-view-mouse)))
+
+;; (use-package auctex
+;;   :ensure t
+;;   :defer t
+;;   :hook (LaTeX-mode .
+;; 	  (lambda ()
+;; 	    (push (list 'output-pdf "Zathura")
+;; 	    TeX-view-program-selection)))) 
 
 ;; Enable LaTeX math support
 (add-hook 'LaTeX-mode-map #'LaTeX-math-mode)
@@ -863,7 +916,6 @@
 (global-set-key (kbd "M-<down>")    'ew/move-line-down)
 ;;; END movey liney
 
-
 (defun ew/resize-window (&optional arg)
 ; Hirose Yuuji and Bob Wiener
 ; https://www.emacswiki.org/emacs/WindowResize
@@ -892,7 +944,6 @@
     (message "Done.")))
 (global-set-key (kbd "C-c C-w w") #'ew/resize-window)
 
-
 (defun ew/toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
@@ -919,6 +970,23 @@
 	  (if this-win-2nd (other-window 1))))))
 
 (define-key ctl-x-5-map "t" 'ew/toggle-window-split)
+
+;; define function to shutdown emacs server instance
+(defun ew/server-shutdown ()
+  "Save buffers, Quit, and Shutdown (kill) server"
+  (interactive)
+  (save-some-buffers)
+  (kill-emacs))
+
+
+(defun se/dired-create-empty-file ()
+  "Create time-stamped org file in dired.
+https://emacs.stackexchange.com/questions/55875/how-to-tweak-dired-create-empty-file-to-facilitate-the-easy-creation-of-files"
+  (interactive)
+  (let* ((ts (format-time-string "%Y-%m-%dT%H.%M.%S" (current-time)))
+         (fname (format "%s.org" ts)))
+    (dired-create-empty-file fname)
+    (find-file fname)))
 
 (defun sjy2/delete-leading-whitespace-in-region (start end)
   "Delete whitespace at the beginning of each line in region."
@@ -1041,8 +1109,10 @@ point reaches the beginning or end of the buffer, stop there."
 (setq org-directory (expand-file-name "~/_scratch/org"))
 (setq org-roam-directory "~/_scratch/org/roam")
 (setq org-default-notes-file (concat org-directory "~/_scratch/scratch.org"))
-(setq org-startup-indented t)
-(setq org-startup-folded (quote overview))
+
+(require 'my-org-capture-templates.el)
+;; https://github.com/sk8ingdom/.emacs.d/blob/master/org-mode-config/org-capture-templates.el
+;; (load "~/.config/emacs/sjy2-lisp/org-capture-templates")
 
 ;;; keybinds
 (global-set-key (kbd "C-c a") 'org-agenda)
@@ -1050,19 +1120,18 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-c l") 'org-store-link)
 
 ;;; sane defaults
-(setq org-hide-emphasis-markers nil
+(setq org-cycle-separator-lines 2
+      org-edit-src-content-indentation 2
+      org-fontify-quote-and-verse-blocks t
+      org-fontify-whole-heading-line t
+      org-hide-block-startup nil
+      org-hide-emphasis-markers nil
       org-special-ctrl-a/e t
       org-special-ctrl-k t
       org-src-fontify-natively t
-      org-fontify-whole-heading-line t
-      org-fontify-quote-and-verse-blocks t
-      org-src-tab-acts-natively t
-      org-edit-src-content-indentation 2
-      org-hide-block-startup nil
       org-src-preserve-indentation nil
-      org-startup-folded 'content
-      org-cycle-separator-lines 2)
-
+      org-src-tab-acts-natively t
+      org-startup-folded 'content)
 
 (with-eval-after-load 'org       
   (setq org-startup-indented t) ; Enable `org-indent-mode' by default
@@ -1081,7 +1150,7 @@ point reaches the beginning or end of the buffer, stop there."
 (setq org-export-with-smart-quotes t) ;; typographical quotes
 ;; Also need =#+LATEX_HEADER: \usepackage{listings}= in the LaTeX SETUPFILE,
 (setq org-latex-listings 't)
-(setq org-log-done t)              ;; 
+(setq org-log-done t)              ;;
 
 ;;; pretty bullets
 (use-package org-bullets 
