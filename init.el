@@ -180,6 +180,9 @@
 (run-at-time nil (* 5 60) 'recentf-save-list)
 (global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
+(set-register ?j (cons 'file (concat org-directory "jokes.org")))
+(set-register ?e (cons 'file (concat org-directory "emacs.org")))
+
 ;; hippie expand is dabbrev expand on steroids
 ;; TODO: get Corfu in on this action?
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev
@@ -196,6 +199,32 @@
 
 ;; Buffers
 
+(add-to-list 'display-buffer-alist
+ '("\\*e?shell\\*"
+   (display-buffer-in-side-window)
+   (side . bottom)
+   (slot . -1) ;; -1 == L  0 == Mid 1 == R
+   (window-height . 0.33) ;; take 2/3 on bottom left
+   (window-parameters
+    (no-delete-other-windows . nil))))
+
+(add-to-list 'display-buffer-alist
+ '("\\*\\(Backtrace\\|Compile-log\\|Messages\\|Warnings\\)\\*"
+   (display-buffer-in-side-window)
+   (side . bottom)
+   (slot . 0)
+   (window-height . 0.33)
+   (window-parameters
+     (no-delete-other-windows . nil))))
+
+(add-to-list 'display-buffer-alist
+ '("\\*\\([Hh]elp\\|Command History\\|command-log\\)\\*"
+   (display-buffer-in-side-window)
+   (side . right)
+   (slot . 0)
+   (window-width . 80)
+   (window-parameters
+     (no-delete-other-windows . nil))))
 
 ;;
 ;;
@@ -243,7 +272,7 @@
    (display-buffer-in-side-window)
    (side . right)
    (slot . 0)
-   (window-width . 100)
+   (window-width . 80)
    (window-parameters
      (no-delete-other-windows . nil))))
 ;;
@@ -577,11 +606,16 @@
 ;;;;; font and faces
 ;; (set-face-attribute 'default nil :font "Cousine-13")
 ;; (set-face-attribute 'default nil :font "Firacode-12")
-(set-face-attribute 'default nil :font "Hack Nerd Font-12")
+;; (set-face-attribute 'default nil :font "Hack Nerd Font-12")
 ;; (set-face-attribute 'default nil :font "Inconsolata-12")
 ;; (set-face-attribute 'default nil :font "Iosevka Comfy Motion 13")
 ;; (set-face-attribute 'default nil :font "Iosevka-13")
 ;; (set-face-attribute 'default nil :font "Menlo-12")
+
+(set-face-attribute 'default        nil :family "Hack Nerd Font" :height 120 :weight 'regular)
+(set-face-attribute 'fixed-pitch    nil :family "Hack Nerd Font" :height 120 :weight 'medium)
+(set-face-attribute 'variable-pitch nil :family "Iosveka Comfy Motion" :height 120 :weight 'medium)
+
 
 ;;; TODO: wanking with gruber-shrews
 (custom-set-faces 
@@ -609,6 +643,10 @@
 ;; M-x unfill-paragraph
 ;; M-x unfill-toggle
 (use-package unfill
+  :ensure t)
+
+;; tabular data helper
+(use-package csv-mode
   :ensure t)
 
 ;;;; PRETIFFY
@@ -864,7 +902,12 @@
 (use-package tree-sitter-langs
   :ensure t
   :after tree-sitter)
-;; auto-format different source code files extremely intelligently;; https://github.com/radian-software/apheleia;; (use-package apheleia;;   :ensure t;;   :config;;   (apheleia-global-mode -1))
+;; auto-format different source code files extremely intelligently
+;; https://github.com/radian-software/apheleia
+;; (use-package apheleia
+;;   :ensure t
+;;   :config
+;;   (apheleia-global-mode -1))
 
 ;; Enabled inline static analysis
 (add-hook 'prog-mode-hook #'flymake-mode)
