@@ -230,23 +230,7 @@
 ;;
 ;;;;;;;;;;;;;;;;; END SANE SETTINGS ;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;; 05 EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
-;;
-;;
-
-;; If you expand too far, you can contract the region by pressing - (minus key),
-;; or by prefixing the shortcut you defined with a negative argument: C--
-(use-package expand-region
-  :ensure t) 
-;; keybound abve
-;; (global-set-key (kbd "M-r") 'er/expand-region)
-
-;;
-;;
-;;;;;;;;;;;;;;;;; END EDITING CONVENIENCES ;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;; 05.5 BUFFER PLACEMENT ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 05 BUFFER PLACEMENT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 (add-to-list 'display-buffer-alist
@@ -375,6 +359,9 @@
   :config
   (global-git-gutter-mode 1)
   (setq git-gutter:update-interval 0.02))
+;;  (global-set-key (kbd "M-<up>") 'git-gutter+-previous-hunk)
+;;  (global-set-key (kbd "M-<down>") 'git-gutter+-next-hunk))
+
 
 ;; You can use git-gutter-fringe even if you disable vc-mode. While diff-hl benefits from VC.
 (use-package git-gutter-fringe
@@ -500,7 +487,7 @@
          ("C-x M-;" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x b"   . consult-buffer)              ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ;; Custom M-# bindings for fast register access
+         ;; Custom M-# bindings for fast register access TODO:
          ("M-#"   . consult-register-load)
          ("M-'"   . consult-register-store)        ;; orig. abbrev-prefix-mark (unrelated)
          ("C-M-#" . consult-register)
@@ -581,7 +568,7 @@
 ;;
 ;;;;;;;;;;;;;;;;; END COMPLETIONS AND SHIT ;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;; 09 APPREANNCE: THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; 09 APPREANCE: THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
 ;;
 ;;
 
@@ -605,16 +592,22 @@
 
 ;;;;; font and faces
 ;; (set-face-attribute 'default nil :font "Cousine-13")
+;; (set-face-attribute 'default nil :font "Victor Mono-13")
 ;; (set-face-attribute 'default nil :font "Firacode-12")
 ;; (set-face-attribute 'default nil :font "Hack Nerd Font-12")
 ;; (set-face-attribute 'default nil :font "Inconsolata-12")
 ;; (set-face-attribute 'default nil :font "Iosevka Comfy Motion 13")
 ;; (set-face-attribute 'default nil :font "Iosevka-13")
 ;; (set-face-attribute 'default nil :font "Menlo-12")
+;; (set-face-attribute 'default nil :font "Merriweather")
+
+(add-hook 'text-mode-hook
+  (lambda ()
+    (variable-pitch-mode 1)))
 
 (set-face-attribute 'default        nil :family "Hack Nerd Font" :height 120 :weight 'regular)
-(set-face-attribute 'fixed-pitch    nil :family "Hack Nerd Font" :height 120 :weight 'medium)
-(set-face-attribute 'variable-pitch nil :family "Iosveka Comfy Motion" :height 120 :weight 'medium)
+(set-face-attribute 'fixed-pitch    nil :family "Iosveka Comfy"  :height 120 :weight 'medium)
+(set-face-attribute 'variable-pitch nil :family "Merriweather"   :height 120 :weight 'medium)
 
 
 ;;; TODO: wanking with gruber-shrews
@@ -623,8 +616,8 @@
  '(minibuffer-prompt ((t (:foreground "#4B919E" :family "Menlo-14"))))
 
  ;;(setq-default cursor-type 'bar) 
- '(set-cursor-color "#F7BA00")
- )
+ ;; '(set-cursor-color "#F7BA00")
+ ;; )
 
 ;;;; Doom-modeline -- I ndáiríre??
 ;; (use-package doom-modeline
@@ -681,6 +674,16 @@
 ;;
 ;;;;;;;;;;;;;;;;; END APPEARANCE: THEMES FONTS FACES ;;;;;;;;;;;;;;;;;
 
+(use-package notmuch
+  :ensure t)
+
+(define-key notmuch-show-mode-map "S"
+  (lambda ()
+    "delete message and move on"
+    (notmuch-show-tag '("+deleted" "-unread"))
+    (notmuch-show-next-open-message-or-pop)))
+
+(require 'setup-email)
 
 ;;;;;;;;;;;;;;;;; 10 HELP AND INFO ;;;;;;;;;;;;;;;;;
 ;;
@@ -770,21 +773,36 @@
 (global-set-key (kbd "S-M-<up>")    'mc/mark-previous-like-this) ;; VSCode
 
 
-(require 'emacs-surround)
-;; delete with C-q d <whatever>
-;; switch with C-q i <orig> <new>
-;; TODO: check https://github.com/rejeep/wrap-region.el
-(add-to-list 'emacs-surround-alist '("=" . ("=" . "=")))
-(add-to-list 'emacs-surround-alist '("*" . ("*" . "*")))
-(add-to-list 'emacs-surround-alist '("~" . ("~" . "~")))
-(add-to-list 'emacs-surround-alist '("**" . ("**" . "**")))
-(add-to-list 'emacs-surround-alist '("+" . ("+" . "+")))
-(add-to-list 'emacs-surround-alist '("_" . ("_" . "_")))
-(add-to-list 'emacs-surround-alist '("/" . ("/" . "/")))
-;; YASnippet better for this
-(add-to-list 'emacs-surround-alist '("c" . ("```\n" . "\n```")))
+(use-package expand-region
+  :ensure t) 
+;; keybound abve
+;; (global-set-key (kbd "M-r") 'er/expand-region)
 
-(global-set-key (kbd "C-q") 'emacs-surround)
+(use-package embrace
+  ;; https://github.com/cute-jumper/embrace.el
+  :ensure t
+  )
+
+(global-set-key (kbd "C-,") #'embrace-commander)
+(add-hook 'org-mode-hook #'embrace-org-mode-hook)
+
+   "wank"
+
+;; (require 'emacs-surround
+;; ;; delete with C-q d <whatever>
+;; ;; switch with C-q i <orig> <new>
+;; ;; TODO: check https://github.com/rejeep/wrap-region.el
+;; (add-to-list 'emacs-surround-alist '("=" . ("=" . "=")))
+;; (add-to-list 'emacs-surround-alist '("*" . ("*" . "*")))
+;; (add-to-list 'emacs-surround-alist '("~" . ("~" . "~")))
+;; (add-to-list 'emacs-surround-alist '("**" . ("**" . "**")))
+;; (add-to-list 'emacs-surround-alist '("+" . ("+" . "+")))
+;; (add-to-list 'emacs-surround-alist '("_" . ("_" . "_")))
+;; (add-to-list 'emacs-surround-alist '("/" . ("/" . "/")))
+;; ;; YASnippet better for this
+;; (add-to-list 'emacs-surround-alist '("c" . ("`\n" . "\n```")))
+
+;; (global-set-key (kbd "C-q") 'emacs-surround)
 
 ;; better undo?
 (use-package undo-tree
