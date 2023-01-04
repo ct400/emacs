@@ -156,6 +156,7 @@
 (setq next-line-add-newlines   t)    ;; C-n inserts \n at buffer end.
 (setq visible-bell             1)    ;; DANGER WILL ROBINSON! (Audible if nil)
 (setq calendar-style        'iso)    ;; 8601 Gang!
+(setq create-lockfiles nil      )    ;; No lockfiles
 (setq calendar-week-start-day  1)        ;; Week starts Mon (default=0, Sun)
 (setq warning-minimum-level :emergency)  ;; ignore warns like docstring length
 (setq ad-redefinition-action 'accept  )  ;; ignore def advice warns
@@ -631,17 +632,6 @@
 ;;   :init
 ;;   (doom-modeline-mode))
 
-
-;; M-x unfill-region
-;; M-x unfill-paragraph
-;; M-x unfill-toggle
-(use-package unfill
-  :ensure t)
-
-;; tabular data helper
-(use-package csv-mode
-  :ensure t)
-
 ;;;; PRETIFFY
 
 ;; cutsey icons
@@ -772,6 +762,11 @@
 (global-set-key (kbd "C-M-,")       'mc/mark-previous-like-this)
 (global-set-key (kbd "S-M-<up>")    'mc/mark-previous-like-this) ;; VSCode
 
+;; M-x unfill-region
+;; M-x unfill-paragraph
+;; M-x unfill-toggle
+(use-package unfill
+  :ensure t)
 
 (use-package expand-region
   :ensure t) 
@@ -840,12 +835,30 @@
 ;;
 ;;
 
+;;; Elisp "enhancements"
+(use-package dash
+  ;; list API -- https://github.com/magnars/dash.el
+  :ensure t
+  :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+(use-package s
+  ;; strings -- https://github.com/magnars/s.el
+  :ensure t)
+
+(use-package f
+  ;; files -- https://github.com/rejeep/f.el
+  :ensure t)
+
 ;;; parens
-;; TODO: Pparedit/parinfer ??
+;; TODO: Paredit/parinfer ??
  (use-package smartparens
   :config
   (smartparens-global-mode -1)
   (add-hook 'prog-mode-hook #'smartparens-mode))
+
+;; tabular data helper
+(use-package csv-mode
+  :ensure t)
 
 (use-package yaml-mode
   :ensure t)
@@ -1128,6 +1141,11 @@ https://emacs.stackexchange.com/questions/55875/how-to-tweak-dired-create-empty-
   (interactive)
   (insert (buffer-file-name)))
 
+(defun sjy2/insert-ISO-date ()
+  "Insert a YYYY-MM-DD representation of the current date."
+  (interactive)
+  (insert (format-time-string "%Y-%m-%dT%H:%m" (current-time))))
+
 (defun sjy2/log-diary()
   (interactive)
   (setq filename (concat "~/_scratch/" (format-time-string "%Y-%m-%dT%H.%M") ".md"))
@@ -1171,6 +1189,9 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   (let ((fill-column (point-max)))
 ;; 	(fill-paragraph nil)))
 ;; (define-key global-map "\M-Q" 'sjy2/unfill-paragraph)
+
+
+
 ;;
 ;;
 ;;;;;;;;;;;;;;;;; END RANDO AND CUSTOM CODE ;;;;;;;;;;;;;;;;;
@@ -1178,8 +1199,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;;;;;;;;;;;;;;; 14  WRITING AND SHIT ;;;;;;;;;;;;;;;;;
 ;;
 ;;
-
-(require 'indirect-sentence)
  
 
 ;; (straight-use-package '(fountain-mode
@@ -1195,6 +1214,39 @@ point reaches the beginning or end of the buffer, stop there."
   (setq olivetti-body-width 0.65)
   (setq olivetti-minimum-body-width 72)
   (setq olivetti-recall-visual-line-mode-entry-state t))
+
+;; Wordcount minor mode
+;; https://github.com/jackrusher/dotemacs/blob/master/modules/07-prose-and-notes.el
+(defvar wordcount-timer nil
+  "Timer to kick off word count recomputation.")
+
+(defvar wordcount-current-count 0
+  "The result of the last word count.")
+
+(defun wordcount-update-word-count ()
+  "Recompute the word count."
+  (setq wordcount-current-count (count-words (point-min) (point-max))))
+
+(define-minor-mode wordcount-mode
+  "Toggle wordcount mode.
+With no argument, this command toggles the mode.
+A non-null prefix argument turns the mode on.
+A null prefix argument turns it off.
+
+When enabled, the word count for the current buffer
+is displayed in the mode-line."
+  :init-value nil
+  :lighter (:eval (format " [%d words]" wordcount-current-count))
+  (if wordcount-mode
+      (progn
+        (set (make-local-variable 'wordcount-current-count)
+             (count-words (point-min) (point-max)))
+        (set (make-local-variable 'wordcount-timer)
+              (run-with-idle-timer 3 't #'wordcount-update-word-count)))
+    (cancel-timer wordcount-timer)))
+
+(add-hook 'markdown-mode-hook (lambda () (wordcount-mode)))
+;; END wordcount minor mode
 
 
 ;;
