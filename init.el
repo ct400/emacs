@@ -781,7 +781,6 @@
 (global-set-key (kbd "C-,") #'embrace-commander)
 (add-hook 'org-mode-hook #'embrace-org-mode-hook)
 
-   "wank"
 
 ;; (require 'emacs-surround
 ;; ;; delete with C-q d <whatever>
@@ -834,6 +833,19 @@
 ;;;;;;;;;;;;;;;;; 12  LANGS ;;;;;;;;;;;;;;;;;
 ;;
 ;;
+;; colorize eshell
+(defun sjy2/eshell-mode-faces-glaukopis ()
+ ;; https://www.reddit.com/r/emacs/comments/3xw5io/using_a_different_colour_scheme_for_mx_shell/cy98eci/
+  "Launch eshell with a slghtly different :background color. Pairs with glaukopis theme"
+    (face-remap-add-relative 'default       '((:background "#E4E3CF")))
+    (face-remap-add-relative 'line-number   '((:background "#E4E3CF")))
+    (face-remap-add-relative 'eshell-prompt '((:foreground "#87CF70" :weight bold))))
+
+(add-hook 'eshell-mode-hook 'sjy2/eshell-mode-faces-glaukopis)
+
+(custom-set-faces
+   '(line-number-current-line   ((t (:foreground "#181818" :weight bold)))))
+
 
 ;;; Elisp "enhancements"
 (use-package dash
@@ -858,6 +870,10 @@
 
 ;; tabular data helper
 (use-package csv-mode
+  :ensure t)
+
+(use-package kbd-mode
+  ;; for Kmonad config files
   :ensure t)
 
 (use-package yaml-mode
